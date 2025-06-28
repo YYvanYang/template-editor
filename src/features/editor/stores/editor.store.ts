@@ -10,6 +10,7 @@ import type {
   ElementUpdate,
   EditorSnapshot 
 } from '../types'
+import { ToolType } from '@/features/toolbar/types/toolbar.types'
 
 // 启用 Immer 对 Map 和 Set 的支持
 enableMapSet()
@@ -25,6 +26,7 @@ interface EditorActions {
   addElement: (element: TemplateElement) => void
   updateElement: (id: string, updates: ElementUpdate) => void
   deleteElement: (id: string) => void
+  deleteSelectedElements: () => void
   selectElement: (id: string) => void
   deselectElement: (id: string) => void
   clearSelection: () => void
@@ -32,10 +34,16 @@ interface EditorActions {
   // History actions
   undo: () => void
   redo: () => void
+  canUndo: boolean
+  canRedo: boolean
   
   // Template actions
   setTemplateName: (name: string) => void
   setTemplateSize: (size: { width: number; height: number }) => void
+  
+  // Tool actions
+  activeTool: ToolType
+  setActiveTool: (tool: ToolType) => void
 }
 
 const MIN_ZOOM = 0.1
@@ -68,6 +76,18 @@ export const useEditorStore = create<EditorState & EditorActions>()(
           name: '未命名模板',
           size: { width: 210, height: 297 },
           unit: 'mm',
+        },
+        
+        // Tool state
+        activeTool: ToolType.SELECT,
+        
+        // Computed properties
+        get canUndo() {
+          return get().history.past.length > 0
+        },
+        
+        get canRedo() {
+          return get().history.future.length > 0
         },
 
         // Canvas actions
@@ -127,6 +147,21 @@ export const useEditorStore = create<EditorState & EditorActions>()(
             state.elements.delete(id)
             state.selectedIds.delete(id)
           }),
+          
+        deleteSelectedElements: () =>
+          set((state) => {
+            if (state.selectedIds.size === 0) return
+            
+            // 保存历史
+            state.history.past.push(createSnapshot(state))
+            state.history.future = []
+            
+            // 删除所有选中的元素
+            state.selectedIds.forEach(id => {
+              state.elements.delete(id)
+            })
+            state.selectedIds.clear()
+          }),
 
         selectElement: (id) =>
           set((state) => {
@@ -175,6 +210,12 @@ export const useEditorStore = create<EditorState & EditorActions>()(
         setTemplateSize: (size) =>
           set((state) => {
             state.template.size = size
+          }),
+          
+        // Tool actions
+        setActiveTool: (tool) =>
+          set((state) => {
+            state.activeTool = tool
           }),
       }))
     ),
