@@ -4,6 +4,7 @@ import { useEditorStore } from '@/features/editor/stores/editor.store';
 import { ToolButton } from './ToolButton';
 import { defaultToolGroups } from '../config/toolbar.config';
 import { ToolType, ToolGroup, ToolConfig } from '../types/toolbar.types';
+import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 
 interface ToolbarProps {
   className?: string;
@@ -24,6 +25,9 @@ export const Toolbar: React.FC<ToolbarProps> = ({ className, onToolChange }) => 
     deleteSelectedElements,
     selectedIds,
   } = useEditorStore();
+  
+  // 启用键盘快捷键
+  useKeyboardShortcuts();
 
   // 处理工具点击
   const handleToolClick = useCallback((tool: ToolConfig) => {
