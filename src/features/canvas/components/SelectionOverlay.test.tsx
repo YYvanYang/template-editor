@@ -7,7 +7,7 @@ import type { SelectionBox } from '../hooks/useElementSelection'
 // Mock react-konva
 vi.mock('react-konva', () => ({
   Group: ({ children }: any) => <g>{children}</g>,
-  Rect: ({ x, y, width, height, onMouseDown, onMouseEnter, onMouseLeave, ...props }: any) => (
+  Rect: ({ x, y, width, height, onMouseDown, onMouseEnter, onMouseLeave, listening, ...props }: any) => (
     <rect
       x={x}
       y={y}
@@ -16,10 +16,11 @@ vi.mock('react-konva', () => ({
       onMouseDown={onMouseDown}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
+      data-listening={listening}
       {...props}
     />
   ),
-  Circle: ({ x, y, radius, onMouseDown, onMouseEnter, onMouseLeave, ...props }: any) => (
+  Circle: ({ x, y, radius, onMouseDown, onMouseEnter, onMouseLeave, listening, ...props }: any) => (
     <circle
       cx={x}
       cy={y}
@@ -27,6 +28,7 @@ vi.mock('react-konva', () => ({
       onMouseDown={onMouseDown}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
+      data-listening={listening}
       {...props}
     />
   ),

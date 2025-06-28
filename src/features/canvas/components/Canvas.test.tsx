@@ -6,7 +6,7 @@ import { useEditorStore } from '@/features/editor/stores/editor.store'
 
 // Mock Konva
 vi.mock('react-konva', () => ({
-  Stage: React.forwardRef(({ children, onWheel, ...props }: any, ref: any) => {
+  Stage: React.forwardRef(({ children, onWheel, scaleX, scaleY, x, y, ...props }: any, ref: any) => {
     const stageRef = React.useRef({
       getPointerPosition: () => ({ x: 100, y: 100 }),
     })
@@ -27,6 +27,10 @@ vi.mock('react-konva', () => ({
       <div 
         data-testid="konva-stage" 
         onWheel={handleWheel}
+        data-scalex={scaleX}
+        data-scaley={scaleY}
+        data-x={x}
+        data-y={y}
         {...props}
       >
         {children}
@@ -88,10 +92,10 @@ describe('Canvas', () => {
     render(<Canvas />)
     
     const stage = screen.getByTestId('konva-stage')
-    expect(stage).toHaveAttribute('scaleX', '2')
-    expect(stage).toHaveAttribute('scaleY', '2')
-    expect(stage).toHaveAttribute('x', '100')
-    expect(stage).toHaveAttribute('y', '50')
+    expect(stage).toHaveAttribute('data-scalex', '2')
+    expect(stage).toHaveAttribute('data-scaley', '2')
+    expect(stage).toHaveAttribute('data-x', '100')
+    expect(stage).toHaveAttribute('data-y', '50')
   })
 
   it('should handle wheel zoom', () => {

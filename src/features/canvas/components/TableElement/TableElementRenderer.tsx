@@ -253,7 +253,6 @@ export const TableElementRenderer: React.FC<TableElementRendererProps> = ({
       x={position.x}
       y={position.y}
       onClick={onSelect}
-      onTap={onSelect}
     >
       {/* 背景 */}
       <Rect

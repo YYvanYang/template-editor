@@ -8,15 +8,30 @@ import * as barcodeGenerator from '@/features/elements/barcode/barcode-generator
 
 // Mock react-konva components
 vi.mock('react-konva', () => ({
-  Group: ({ children, onClick, onTap, ...props }: any) => (
-    <div data-testid="konva-group" onClick={onClick} {...props}>{children}</div>
+  Group: ({ children, onClick, onTap, listening, ...props }: any) => (
+    <div data-testid="konva-group" onClick={onClick} data-listening={listening} {...props}>{children}</div>
   ),
-  Rect: ({ strokeWidth, ...props }: any) => (
-    <div data-testid="konva-rect" {...(strokeWidth ? { 'data-strokewidth': String(strokeWidth) } : {})} {...props} />
+  Rect: ({ strokeWidth, listening, ...props }: any) => (
+    <div 
+      data-testid="konva-rect" 
+      {...(strokeWidth ? { 'data-strokewidth': String(strokeWidth) } : {})}
+      {...(listening !== undefined ? { 'data-listening': String(listening) } : {})}
+      {...props} 
+    />
   ),
-  Image: ({ ...props }: any) => <div data-testid="konva-image" {...props} />,
-  Text: ({ text, fontSize, fontFamily, ...props }: any) => (
-    <div data-testid="konva-text" fontSize={fontSize} fontFamily={fontFamily} {...props}>{text}</div>
+  Image: ({ listening, ...props }: any) => (
+    <div data-testid="konva-image" data-listening={listening} {...props} />
+  ),
+  Text: ({ text, fontSize, fontFamily, listening, ...props }: any) => (
+    <div 
+      data-testid="konva-text" 
+      data-fontsize={fontSize} 
+      data-fontfamily={fontFamily}
+      data-listening={listening}
+      {...props}
+    >
+      {text}
+    </div>
   ),
 }));
 
@@ -280,31 +295,41 @@ describe('BarcodeElementRenderer', () => {
   });
   
   describe('样式应用', () => {
-    it('应该应用背景色', () => {
+    it('应该应用背景色', async () => {
       const element = createTestElement({
         style: { backgroundColor: '#ff0000' },
       });
       
-      const { container } = render(
-        <BarcodeElementRenderer element={element} />
-      );
+      let container: HTMLElement;
+      await act(async () => {
+        ({ container } = render(
+          <BarcodeElementRenderer element={element} />
+        ));
+      });
       
-      const rect = container.querySelector('[data-testid="konva-rect"]');
-      expect(rect).toHaveAttribute('fill', '#ff0000');
+      await waitFor(() => {
+        const rect = container.querySelector('[data-testid="konva-rect"]');
+        expect(rect).toHaveAttribute('fill', '#ff0000');
+      });
     });
     
-    it('应该应用边框', () => {
+    it('应该应用边框', async () => {
       const element = createTestElement({
         style: { borderColor: '#0000ff', borderWidth: 2 },
       });
       
-      const { container } = render(
-        <BarcodeElementRenderer element={element} />
-      );
+      let container: HTMLElement;
+      await act(async () => {
+        ({ container } = render(
+          <BarcodeElementRenderer element={element} />
+        ));
+      });
       
-      const rect = container.querySelector('[data-testid="konva-rect"]');
-      expect(rect).toHaveAttribute('stroke', '#0000ff');
-      expect(rect).toHaveAttribute('data-strokewidth', '2');
+      await waitFor(() => {
+        const rect = container.querySelector('[data-testid="konva-rect"]');
+        expect(rect).toHaveAttribute('stroke', '#0000ff');
+        expect(rect).toHaveAttribute('data-strokewidth', '2');
+      });
     });
     
     it('应该处理不可见状态', async () => {
@@ -327,28 +352,42 @@ describe('BarcodeElementRenderer', () => {
   });
   
   describe('选中状态', () => {
-    it('应该显示选中边框', () => {
+    it('应该显示选中边框', async () => {
       const element = createTestElement();
-      const { container } = render(
-        <BarcodeElementRenderer element={element} selected={true} />
-      );
       
-      const rects = container.querySelectorAll('[data-testid="konva-rect"]');
-      const selectionRect = Array.from(rects).find(rect => 
-        rect.getAttribute('stroke') === '#0066FF' &&
-        rect.getAttribute('dash') === '5,5'
-      );
+      let container: HTMLElement;
+      await act(async () => {
+        ({ container } = render(
+          <BarcodeElementRenderer element={element} selected={true} />
+        ));
+      });
       
-      expect(selectionRect).toBeTruthy();
+      await waitFor(() => {
+        const rects = container.querySelectorAll('[data-testid="konva-rect"]');
+        const selectionRect = Array.from(rects).find(rect => 
+          rect.getAttribute('stroke') === '#0066FF' &&
+          rect.getAttribute('dash') === '5,5'
+        );
+        
+        expect(selectionRect).toBeTruthy();
+      });
     });
     
-    it('应该调用onSelect回调', () => {
+    it('应该调用onSelect回调', async () => {
       const element = createTestElement();
       const onSelect = vi.fn();
       
-      const { container } = render(
-        <BarcodeElementRenderer element={element} onSelect={onSelect} />
-      );
+      let container: HTMLElement;
+      await act(async () => {
+        ({ container } = render(
+          <BarcodeElementRenderer element={element} onSelect={onSelect} />
+        ));
+      });
+      
+      await waitFor(() => {
+        const group = container.querySelector('[data-testid="konva-group"]');
+        expect(group).toBeTruthy();
+      });
       
       const group = container.querySelector('[data-testid="konva-group"]');
       group?.dispatchEvent(new Event('click', { bubbles: true }));

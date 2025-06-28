@@ -7,12 +7,28 @@ import type { TableRow, TableCell } from '@/features/elements/types/table.types'
 
 // Mock react-konva components
 vi.mock('react-konva', () => ({
-  Group: ({ children, ...props }: any) => <div data-testid="konva-group" {...props}>{children}</div>,
-  Rect: ({ ...props }: any) => <div data-testid="konva-rect" {...props} />,
-  Text: ({ text, fontSize, ...props }: any) => (
-    <div data-testid="konva-text" data-fontsize={fontSize} {...props}>{text}</div>
+  Group: ({ children, listening, ...props }: any) => (
+    <div data-testid="konva-group" data-listening={listening} {...props}>{children}</div>
   ),
-  Line: ({ ...props }: any) => <div data-testid="konva-line" {...props} />,
+  Rect: ({ listening, strokeWidth, ...props }: any) => (
+    <div data-testid="konva-rect" data-listening={listening} data-strokewidth={strokeWidth} {...props} />
+  ),
+  Text: ({ text, fontSize, verticalAlign, ellipsis, wrap, fontStyle, ...props }: any) => (
+    <div 
+      data-testid="konva-text" 
+      data-fontsize={fontSize}
+      data-verticalalign={verticalAlign}
+      data-ellipsis={ellipsis}
+      data-wrap={wrap}
+      data-fontstyle={fontStyle}
+      {...props}
+    >
+      {text}
+    </div>
+  ),
+  Line: ({ listening, ...props }: any) => (
+    <div data-testid="konva-line" data-listening={listening} {...props} />
+  ),
 }));
 
 // Mock data-binding
