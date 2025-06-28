@@ -1,15 +1,15 @@
 import React from 'react'
 import { Group, Rect, Circle } from 'react-konva'
 import type { SelectionBox } from '../hooks/useElementSelection'
+import type { ResizeHandle } from '../hooks/useResize'
 
 export interface SelectionOverlayProps {
   selectionBounds: SelectionBox | null
   visible?: boolean
-  onResize?: (handle: ResizeHandle, deltaX: number, deltaY: number) => void
+  onResizeStart?: (elementId: string, handle: ResizeHandle, event: MouseEvent) => void
   onRotate?: (angle: number) => void
+  elementId?: string
 }
-
-export type ResizeHandle = 'nw' | 'n' | 'ne' | 'e' | 'se' | 's' | 'sw' | 'w'
 
 const HANDLE_SIZE = 8
 const ROTATION_HANDLE_OFFSET = 20
@@ -20,8 +20,9 @@ const HANDLE_STROKE = '#0969da'
 export const SelectionOverlay: React.FC<SelectionOverlayProps> = ({
   selectionBounds,
   visible = true,
-  onResize,
+  onResizeStart,
   onRotate,
+  elementId,
 }) => {
   if (!selectionBounds || !visible) return null
 
@@ -43,26 +44,18 @@ export const SelectionOverlay: React.FC<SelectionOverlayProps> = ({
   const rotationHandleX = x + width / 2
   const rotationHandleY = y - ROTATION_HANDLE_OFFSET
 
-  const handleMouseDown = (handle: ResizeHandle) => (e: any) => {
+  const handleResizeMouseDown = (handle: ResizeHandle) => (e: any) => {
     e.cancelBubble = true
-    if (!onResize) return
+    if (!onResizeStart || !elementId) return
 
-    const startX = e.evt.clientX
-    const startY = e.evt.clientY
-
-    const handleMouseMove = (moveEvent: MouseEvent) => {
-      const deltaX = moveEvent.clientX - startX
-      const deltaY = moveEvent.clientY - startY
-      onResize(handle, deltaX, deltaY)
-    }
-
-    const handleMouseUp = () => {
-      window.removeEventListener('mousemove', handleMouseMove)
-      window.removeEventListener('mouseup', handleMouseUp)
-    }
-
-    window.addEventListener('mousemove', handleMouseMove)
-    window.addEventListener('mouseup', handleMouseUp)
+    // Convert Konva event to MouseEvent-like object
+    const mouseEvent = new MouseEvent('mousedown', {
+      clientX: e.evt.clientX,
+      clientY: e.evt.clientY,
+      bubbles: true,
+    })
+    
+    onResizeStart(elementId, handle, mouseEvent)
   }
 
   const handleRotationMouseDown = (e: any) => {
@@ -128,7 +121,7 @@ export const SelectionOverlay: React.FC<SelectionOverlayProps> = ({
           fill={HANDLE_COLOR}
           stroke={HANDLE_STROKE}
           strokeWidth={1}
-          onMouseDown={handleMouseDown(handle)}
+          onMouseDown={handleResizeMouseDown(handle)}
           onMouseEnter={(e) => {
             const stage = e.target.getStage()
             if (stage) {
