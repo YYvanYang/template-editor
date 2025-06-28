@@ -4,9 +4,10 @@ import { Line } from 'react-konva'
 interface GridProps {
   zoom: number
   size: { width: number; height: number }
+  offset: { x: number; y: number }
 }
 
-export const Grid: React.FC<GridProps> = ({ zoom, size }) => {
+export const Grid: React.FC<GridProps> = ({ zoom, size, offset }) => {
   const gridSize = 20 // 基础网格大小
   const strokeWidth = 1 / zoom // 保持线条粗细不变
   
@@ -15,12 +16,18 @@ export const Grid: React.FC<GridProps> = ({ zoom, size }) => {
   
   const lines = []
   
+  // 在画布区域内绘制网格（size 已经是画布的实际尺寸）
+  const startX = 0
+  const endX = size.width
+  const startY = 0
+  const endY = size.height
+  
   // 垂直线
-  for (let x = 0; x <= size.width / zoom; x += step) {
+  for (let x = startX; x <= endX; x += step) {
     lines.push(
       <Line
         key={`v-${x}`}
-        points={[x, 0, x, size.height / zoom]}
+        points={[x, startY, x, endY]}
         stroke="#e0e0e0"
         strokeWidth={strokeWidth}
       />
@@ -28,11 +35,11 @@ export const Grid: React.FC<GridProps> = ({ zoom, size }) => {
   }
   
   // 水平线
-  for (let y = 0; y <= size.height / zoom; y += step) {
+  for (let y = startY; y <= endY; y += step) {
     lines.push(
       <Line
         key={`h-${y}`}
-        points={[0, y, size.width / zoom, y]}
+        points={[startX, y, endX, y]}
         stroke="#e0e0e0"
         strokeWidth={strokeWidth}
       />

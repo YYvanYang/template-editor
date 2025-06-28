@@ -43,6 +43,22 @@ vi.mock('react-konva', () => ({
   Line: ({ points, ...props }: any) => (
     <div data-testid="konva-line" data-points={points} {...props} />
   ),
+  Rect: ({ x, y, width, height, fill, ...props }: any) => (
+    <div 
+      data-testid="konva-rect" 
+      data-x={x}
+      data-y={y}
+      data-width={width}
+      data-height={height}
+      data-fill={fill}
+      {...props} 
+    />
+  ),
+  Group: ({ children, clip, ...props }: any) => (
+    <div data-testid="konva-group" data-clip={JSON.stringify(clip)} {...props}>
+      {children}
+    </div>
+  ),
 }))
 
 // Mock store
@@ -62,6 +78,12 @@ describe('Canvas', () => {
         offset: { x: 0, y: 0 },
         gridEnabled: true,
         snapEnabled: true,
+      },
+      template: {
+        id: 'test',
+        name: 'Test Template',
+        size: { width: 210, height: 297 },
+        unit: 'mm',
       },
       elements: new Map(),
       selectedIds: new Set(),
@@ -84,6 +106,12 @@ describe('Canvas', () => {
         offset: { x: 100, y: 50 },
         gridEnabled: true,
         snapEnabled: true,
+      },
+      template: {
+        id: 'test',
+        name: 'Test Template',
+        size: { width: 210, height: 297 },
+        unit: 'mm',
       },
       elements: new Map(),
       selectedIds: new Set(),
@@ -108,6 +136,12 @@ describe('Canvas', () => {
         offset: { x: 0, y: 0 },
         gridEnabled: true,
         snapEnabled: true,
+      },
+      template: {
+        id: 'test',
+        name: 'Test Template',
+        size: { width: 210, height: 297 },
+        unit: 'mm',
       },
       elements: new Map(),
       selectedIds: new Set(),

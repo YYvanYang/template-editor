@@ -1,5 +1,5 @@
 import React, { useRef, useCallback, useEffect } from 'react'
-import { Stage, Layer } from 'react-konva'
+import { Stage, Layer, Rect, Group } from 'react-konva'
 import type { KonvaEventObject } from 'konva/lib/Node'
 import { useEditorStore } from '@/features/editor/stores/editor.store'
 import { Grid } from './Grid'
@@ -17,6 +17,7 @@ export const Canvas: React.FC = () => {
     canvas,
     elements,
     selectedIds,
+    template,
     setZoom,
     setOffset,
   } = useEditorStore()
@@ -87,7 +88,7 @@ export const Canvas: React.FC = () => {
   useCanvasEvents(stageRef)
 
   return (
-    <div ref={containerRef} className="relative w-full h-full overflow-hidden bg-gray-100">
+    <div ref={containerRef} className="relative w-full h-full overflow-hidden" style={{ backgroundColor: '#f5f5f5' }}>
       <Stage
         ref={stageRef}
         width={stageSize.width}
@@ -101,8 +102,34 @@ export const Canvas: React.FC = () => {
         onDragEnd={handleDragEnd}
       >
         <Layer>
+          {/* 画布背景 */}
+          <Rect
+            x={0}
+            y={0}
+            width={template.size.width}
+            height={template.size.height}
+            fill="white"
+            shadowColor="rgba(0,0,0,0.1)"
+            shadowBlur={10}
+            shadowOffsetX={2}
+            shadowOffsetY={2}
+          />
+          
           {/* 网格背景 */}
-          {canvas.gridEnabled && <Grid zoom={canvas.zoom} size={stageSize} />}
+          {canvas.gridEnabled && (
+            <Group clip={{
+              x: 0,
+              y: 0,
+              width: template.size.width,
+              height: template.size.height,
+            }}>
+              <Grid 
+                zoom={canvas.zoom} 
+                size={template.size} 
+                offset={{ x: 0, y: 0 }}
+              />
+            </Group>
+          )}
           
           {/* 渲染元素 */}
           {/* TODO: 实现元素渲染 */}

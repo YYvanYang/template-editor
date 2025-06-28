@@ -27,9 +27,10 @@ export const CanvasWithRulers: React.FC<CanvasWithRulersProps> = ({
   const rulerThickness = 20;
   
   // 构建 viewport 对象
+  // 注意：标尺需要反向的偏移值，因为当画布向右拖动时，标尺应该显示负值
   const viewport = {
-    x: canvas.offset.x,
-    y: canvas.offset.y,
+    x: -canvas.offset.x,
+    y: -canvas.offset.y,
     scale: canvas.zoom,
   };
   
