@@ -1,34 +1,30 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Layout } from '@/shared/components/Layout'
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <Layout>
+      <div className="flex-1 flex">
+        {/* 左侧工具栏 */}
+        <aside className="w-12 bg-slate-900 border-r border-border">
+          {/* 后续添加工具图标 */}
+        </aside>
+        
+        {/* 中间画布区域 */}
+        <div className="flex-1 bg-gray-50 p-8">
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-white rounded-lg shadow-sm border border-border h-96 flex items-center justify-center">
+              <p className="text-muted-foreground">画布区域</p>
+            </div>
+          </div>
+        </div>
+        
+        {/* 右侧属性面板 */}
+        <aside className="w-80 bg-card border-l border-border p-4">
+          <h2 className="text-lg font-medium mb-4">属性面板</h2>
+          <p className="text-sm text-muted-foreground">选择元素查看属性</p>
+        </aside>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    </Layout>
   )
 }
 
