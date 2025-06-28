@@ -5,12 +5,12 @@
 
 ## 技术栈
 - **框架**: React 19.1.0 + TypeScript 5.x
-- **构建工具**: Vite 7.x
+- **构建工具**: Vite 7.x (推荐使用 @vitejs/plugin-react-swc)
 - **样式**: Tailwind CSS 4.x (使用新的 CSS 配置方式)
 - **状态管理**: Zustand + Immer
 - **画布渲染**: Konva.js / React-Konva
 - **测试**: Vitest + React Testing Library
-- **代码规范**: ESLint 9.x + Prettier
+- **代码规范**: ESLint 9.x (扁平化配置) + Prettier
 
 ## 开发规范
 
@@ -93,21 +93,83 @@ src/
 4. 使用 Web Worker 处理复杂计算
 
 ## Tailwind CSS v4 配置说明
+
+### 核心改进
+1. **Oxide 引擎**
+   - 基于 Rust 的高性能引擎
+   - 构建速度提升 5 倍，增量构建提升 100 倍
+   - 安装体积减小 35%
+
+2. **零配置理念**
+   - 自动内容检测，无需手动配置 content 数组
+   - 与 Vite 深度集成，利用模块图谱
+   - 内置 Lightning CSS，无需额外 PostCSS 插件
+
+### CSS-First 配置
 项目使用 Tailwind CSS v4 的新配置方式：
-- 配置文件：`tailwind.config.css` (CSS 格式，非 JS)
+- 配置文件：主 CSS 文件中使用 `@theme` (非 `tailwind.config.js`)
 - 使用 `@theme` 定义设计系统变量
 - 通过 CSS 变量实现主题切换
 - 支持暗色模式自动切换
 
+示例配置：
+```css
+@import "tailwindcss";
+
+@theme {
+  --color-brand-primary: oklch(65% 0.22 260);
+  --font-display: "Satoshi", var(--font-sans);
+  --spacing-128: 32rem;
+}
+```
+
 ### 主题变量命名规范
-- 颜色：`--color-{name}`
+- 颜色：`--color-{name}` (推荐使用 OKLCH 色彩空间)
 - 间距：`--spacing-{size}`
 - 圆角：`--radius-{size}`
+- 字体：`--font-{name}`
+
+### v4.1 新增工具类
+- `text-shadow-*` - 文本阴影
+- `mask-*` - 遮罩效果
+- `wrap-*` - 文本换行控制
+- `safe-*` - 安全对齐变体
+- `pointer-*` - 输入设备检测
+- `user-valid/user-invalid` - 用户交互后的表单验证
 
 ## React 19 新特性使用
+
+### 核心新特性
+1. **Actions 和 useActionState**
+   - 使用 `useActionState` 处理表单提交和异步操作
+   - 自动管理 loading、error、success 状态
+   - 示例：
+   ```typescript
+   const [error, submitAction, isPending] = useActionState(
+     async (previousState, formData) => {
+       // 处理表单提交
+     },
+     initialState
+   );
+   ```
+
+2. **use Hook**
+   - 可在条件语句中使用的新 Hook
+   - 读取 Promise 和 Context
+   - 与 Suspense 无缝集成
+   - 注意：Promise 应在 Server Component 中创建
+
+3. **原生文档元数据**
+   - 直接在组件中使用 `<title>`, `<meta>`, `<link>`
+   - React 会自动提升到 `<head>`
+
+4. **简化的 Context**
+   - 直接使用 `<Context value={...}>` 代替 `<Context.Provider>`
+
+### 废弃的 API
 - 避免使用 `forwardRef`（已标记为不推荐）
 - 使用新的 ref 作为 props 传递方式
-- 利用新的性能优化特性
+- `propTypes` 和 `defaultProps` 已移除（使用 TypeScript）
 
 ## 测试最佳实践（2025年更新）
 
@@ -158,3 +220,80 @@ src/
 1. **Hook 的 ref 同步问题**：ref 更新不会触发重渲染，需要手动同步
 2. **事件模拟**：确保模拟的事件包含必要的属性（如 `preventDefault`）
 3. **异步更新**：React 18+ 的批量更新可能导致状态不立即更新
+
+## ESLint 9 扁平化配置
+
+### 核心概念
+- 使用 `eslint.config.js` 替代 `.eslintrc`
+- 导出配置对象数组，显式定义规则应用范围
+- 支持 ES 模块，可使用 import/export
+
+### React + TypeScript 配置示例
+```javascript
+// eslint.config.js
+import globals from "globals";
+import js from "@eslint/js";
+import tseslint from "typescript-eslint";
+import pluginReact from "eslint-plugin-react";
+import pluginReactHooks from "eslint-plugin-react-hooks";
+import { fixupPluginRules } from "@eslint/compat";
+
+export default tseslint.config(
+  { ignores: ["dist/", "node_modules/"] },
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
+  {
+    files: ["**/*.{js,jsx,mjs,cjs,ts,tsx}"],
+    plugins: {
+      react: fixupPluginRules(pluginReact),
+      "react-hooks": pluginReactHooks,
+    },
+    languageOptions: {
+      parserOptions: { ecmaFeatures: { jsx: true } },
+      globals: { ...globals.browser },
+    },
+    rules: {
+      ...pluginReact.configs.recommended.rules,
+      "react-hooks/rules-of-hooks": "error",
+      "react-hooks/exhaustive-deps": "warn",
+      "react/react-in-jsx-scope": "off",
+      "react/prop-types": "off",
+    },
+    settings: { react: { version: "detect" } },
+  }
+);
+```
+
+### 关键要点
+- 使用 `@eslint/compat` 处理未完全适配的插件
+- 通过 `files` 属性精确控制规则应用范围
+- Node.js 版本要求：18.18.0+ 或 20.9.0+
+
+## Vite 7 配置指南
+
+### 核心更新
+1. **Node.js 要求**：20.19+ 或 22.12+
+2. **默认构建目标**：`baseline-widely-available`
+   - Chrome 107+, Firefox 104+, Safari 16.0+
+3. **Rolldown**：基于 Rust 的下一代打包工具（实验性）
+
+### React 插件选择
+| 插件 | 性能 | 灵活性 | 适用场景 |
+|------|------|--------|----------|
+| `@vitejs/plugin-react` | 快速 | 高（支持 Babel 插件） | 需要自定义 Babel 转换 |
+| `@vitejs/plugin-react-swc` | 极快 | 较低 | 标准项目，追求性能 |
+
+**推荐**：对于本项目，使用 `@vitejs/plugin-react-swc` 以获得最佳性能。
+
+### 配置示例
+```typescript
+// vite.config.ts
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react-swc';
+import tailwindcss from '@tailwindcss/vite';
+
+export default defineConfig({
+  plugins: [react(), tailwindcss()],
+  server: { port: 3000 },
+});
+```
