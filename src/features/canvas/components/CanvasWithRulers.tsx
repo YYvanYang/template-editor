@@ -21,8 +21,15 @@ export const CanvasWithRulers: React.FC<CanvasWithRulersProps> = ({
   const [unit, setUnit] = useState(initialUnit);
   const [mousePosition, setMousePosition] = useState<{ x: number; y: number } | null>(null);
   
-  const { canvas } = useEditorStore();
+  const { canvas, template } = useEditorStore();
   const rulerThickness = 20;
+  
+  // 构建 viewport 对象
+  const viewport = {
+    x: canvas.offset.x,
+    y: canvas.offset.y,
+    scale: canvas.zoom,
+  };
 
   // 处理单位切换
   const handleUnitChange = useCallback(() => {
@@ -69,11 +76,11 @@ export const CanvasWithRulers: React.FC<CanvasWithRulersProps> = ({
         <div style={{ flex: 1, overflow: 'hidden' }}>
           <Ruler
             orientation="horizontal"
-            length={canvas.width}
+            length={template.size.width}
             thickness={rulerThickness}
             unit={unit}
-            canvasSize={canvas}
-            viewport={canvas.viewport}
+            canvasSize={template.size}
+            viewport={viewport}
             mousePosition={mousePosition}
             onClick={(value) => handleRulerClick(value, 'horizontal')}
           />
@@ -85,11 +92,11 @@ export const CanvasWithRulers: React.FC<CanvasWithRulersProps> = ({
         <div style={{ overflow: 'hidden' }}>
           <Ruler
             orientation="vertical"
-            length={canvas.height}
+            length={template.size.height}
             thickness={rulerThickness}
             unit={unit}
-            canvasSize={canvas}
-            viewport={canvas.viewport}
+            canvasSize={template.size}
+            viewport={viewport}
             mousePosition={mousePosition}
             onClick={(value) => handleRulerClick(value, 'vertical')}
           />
