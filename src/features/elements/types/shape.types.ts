@@ -1,4 +1,4 @@
-import { BaseElement, type BaseElementData } from './base.types'
+import { BaseElementClass as BaseElement, type BaseElementData } from './base.types'
 
 export type ShapeType = 'rectangle' | 'circle' | 'line' | 'ellipse' | 'polygon'
 

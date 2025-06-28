@@ -1,3 +1,11 @@
+export enum ElementType {
+  TEXT = 'text',
+  IMAGE = 'image',
+  SHAPE = 'shape',
+  TABLE = 'table',
+  BARCODE = 'barcode',
+}
+
 export interface Position {
   x: number
   y: number
@@ -41,7 +49,22 @@ export interface BaseElementData {
   data?: Record<string, unknown>
 }
 
-export abstract class BaseElement<T extends BaseElementData = BaseElementData> {
+// 简化的元素接口，用于模板序列化
+export interface BaseElement {
+  id: string;
+  type: ElementType;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  rotation?: number;
+  locked?: boolean;
+  visible?: boolean;
+  style?: Record<string, any>;
+  [key: string]: any; // 允许额外的属性
+}
+
+export abstract class BaseElementClass<T extends BaseElementData = BaseElementData> {
   protected _data: T
 
   constructor(data: T) {

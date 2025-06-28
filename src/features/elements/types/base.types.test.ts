@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { BaseElement, type BaseElementData } from './base.types'
+import { BaseElementClass as BaseElement, type BaseElementData } from './base.types'
 
 // Test implementation of BaseElement
 class TestElement extends BaseElement {

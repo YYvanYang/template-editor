@@ -1,4 +1,4 @@
-import { BaseElement, type BaseElementData } from './base.types'
+import { BaseElementClass as BaseElement, type BaseElementData } from './base.types'
 
 export type ImageFit = 'contain' | 'cover' | 'fill' | 'none' | 'scale-down'
 export type ImageAlign = 'center' | 'top' | 'bottom' | 'left' | 'right' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'

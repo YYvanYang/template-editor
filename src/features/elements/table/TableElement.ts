@@ -1,5 +1,5 @@
 import React from 'react';
-import { BaseElement } from '../types/base.types';
+import { BaseElementClass as BaseElement } from '../types/base.types';
 import type { 
   TableElement as ITableElement, 
   TableColumn, 

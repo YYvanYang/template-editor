@@ -1,6 +1,9 @@
-import { BaseElement } from '../types/base.types';
+import { BaseElementClass as BaseElement } from '../types/base.types';
 import type { IBarcodeElement, BarcodeStyle } from '../types/barcode.types';
 import { BarcodeType, RatioMode, BARCODE_DEFAULTS, is2DBarcode } from '../types/barcode.types';
+
+// Re-export BarcodeType for external use
+export { BarcodeType } from '../types/barcode.types';
 
 /**
  * 条码元素类
