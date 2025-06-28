@@ -131,12 +131,18 @@ export const Ruler: React.FC<RulerProps> = (props) => {
               data-testid={`tick-${tick.isMajor ? 'major' : 'minor'}-${index}`}
             />
             {tick.label && (
-              <div 
-                style={labelStyle}
-                data-testid={`label-${index}`}
-              >
-                {tick.label}
-              </div>
+              // 只显示在可见范围内的标签
+              (orientation === 'horizontal' 
+                ? tick.position > -50 && tick.position < length + 50
+                : tick.position > -50 && tick.position < length + 50
+              ) && (
+                <div 
+                  style={labelStyle}
+                  data-testid={`label-${index}`}
+                >
+                  {tick.label}
+                </div>
+              )
             )}
           </React.Fragment>
         );

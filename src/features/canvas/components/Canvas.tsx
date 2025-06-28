@@ -8,6 +8,7 @@ import { useCanvasEvents } from '../hooks/useCanvasEvents'
 const ZOOM_SPEED = 0.002
 const MIN_ZOOM = 0.1
 const MAX_ZOOM = 5
+const MM_TO_PX = 3.7795275591 // 1mm = 3.7795275591px at 96dpi
 
 export const Canvas: React.FC = () => {
   const stageRef = useRef<any>(null)
@@ -106,8 +107,8 @@ export const Canvas: React.FC = () => {
           <Rect
             x={0}
             y={0}
-            width={template.size.width}
-            height={template.size.height}
+            width={template.size.width * MM_TO_PX}
+            height={template.size.height * MM_TO_PX}
             fill="white"
             shadowColor="rgba(0,0,0,0.1)"
             shadowBlur={10}
@@ -120,12 +121,15 @@ export const Canvas: React.FC = () => {
             <Group clip={{
               x: 0,
               y: 0,
-              width: template.size.width,
-              height: template.size.height,
+              width: template.size.width * MM_TO_PX,
+              height: template.size.height * MM_TO_PX,
             }}>
               <Grid 
                 zoom={canvas.zoom} 
-                size={template.size} 
+                size={{ 
+                  width: template.size.width * MM_TO_PX,
+                  height: template.size.height * MM_TO_PX,
+                }} 
                 offset={{ x: 0, y: 0 }}
               />
             </Group>

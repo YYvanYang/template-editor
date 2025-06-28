@@ -25,6 +25,7 @@ export const CanvasWithRulers: React.FC<CanvasWithRulersProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const { canvas, template } = useEditorStore();
   const rulerThickness = 20;
+  const MM_TO_PX = 3.7795275591; // 1mm = 3.7795275591px at 96dpi
   
   // 构建 viewport 对象
   // 注意：标尺需要反向的偏移值，因为当画布向右拖动时，标尺应该显示负值
@@ -99,7 +100,10 @@ export const CanvasWithRulers: React.FC<CanvasWithRulersProps> = ({
             length={containerSize.width}
             thickness={rulerThickness}
             unit={unit}
-            canvasSize={template.size}
+            canvasSize={{ 
+              width: template.size.width * MM_TO_PX,
+              height: template.size.height * MM_TO_PX,
+            }}
             viewport={viewport}
             mousePosition={mousePosition}
             onClick={(value) => handleRulerClick(value, 'horizontal')}
@@ -115,7 +119,10 @@ export const CanvasWithRulers: React.FC<CanvasWithRulersProps> = ({
             length={containerSize.height}
             thickness={rulerThickness}
             unit={unit}
-            canvasSize={template.size}
+            canvasSize={{ 
+              width: template.size.width * MM_TO_PX,
+              height: template.size.height * MM_TO_PX,
+            }}
             viewport={viewport}
             mousePosition={mousePosition}
             onClick={(value) => handleRulerClick(value, 'vertical')}
