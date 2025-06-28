@@ -167,9 +167,14 @@ src/
    - 直接使用 `<Context value={...}>` 代替 `<Context.Provider>`
 
 ### 废弃的 API
-- 避免使用 `forwardRef`（已标记为不推荐）
-- 使用新的 ref 作为 props 传递方式
-- `propTypes` 和 `defaultProps` 已移除（使用 TypeScript）
+- **避免使用 `forwardRef`**（已标记为不推荐）
+  - React 19 允许 ref 作为普通 prop 传递
+  - 旧方式：`React.forwardRef((props, ref) => <div ref={ref} />)`
+  - 新方式：`function Component({ ref, ...props }) { return <div ref={ref} /> }`
+  - 函数组件现在可以直接接收 `ref` 作为 prop
+  - TypeScript 中添加 `ref?: React.Ref<HTMLElement>` 到接口定义
+- **`propTypes` 和 `defaultProps` 已移除**（使用 TypeScript 代替）
+- **避免字符串 refs**（早已废弃，使用 useRef 或回调 refs）
 
 ## 测试最佳实践（2025年更新）
 
