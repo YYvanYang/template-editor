@@ -83,10 +83,14 @@ describe('SelectionOverlay', () => {
       expect(handles.length).toBe(8)
     })
 
-    it('should render rotation handle when onRotate is provided', () => {
-      const onRotate = vi.fn()
+    it('should render rotation handle when onRotationStart is provided', () => {
+      const onRotationStart = vi.fn()
       const { container } = render(
-        <SelectionOverlay selectionBounds={defaultBounds} onRotate={onRotate} />
+        <SelectionOverlay 
+          selectionBounds={defaultBounds} 
+          onRotationStart={onRotationStart}
+          elementId="test-element"
+        />
       )
       
       // Should have rotation line and circle
@@ -152,9 +156,13 @@ describe('SelectionOverlay', () => {
     })
 
     it('should handle rotation mouse down', () => {
-      const onRotate = vi.fn()
+      const onRotationStart = vi.fn()
       const { container } = render(
-        <SelectionOverlay selectionBounds={defaultBounds} onRotate={onRotate} />
+        <SelectionOverlay 
+          selectionBounds={defaultBounds} 
+          onRotationStart={onRotationStart}
+          elementId="test-element"
+        />
       )
       
       const circle = container.querySelector('circle')

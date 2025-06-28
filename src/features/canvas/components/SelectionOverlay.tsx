@@ -7,8 +7,9 @@ export interface SelectionOverlayProps {
   selectionBounds: SelectionBox | null
   visible?: boolean
   onResizeStart?: (elementId: string, handle: ResizeHandle, event: MouseEvent) => void
-  onRotate?: (angle: number) => void
+  onRotationStart?: (elementId: string, event: MouseEvent) => void
   elementId?: string
+  showRotationHandle?: boolean
 }
 
 const HANDLE_SIZE = 8
@@ -21,8 +22,9 @@ export const SelectionOverlay: React.FC<SelectionOverlayProps> = ({
   selectionBounds,
   visible = true,
   onResizeStart,
-  onRotate,
+  onRotationStart,
   elementId,
+  showRotationHandle = true,
 }) => {
   if (!selectionBounds || !visible) return null
 
@@ -60,25 +62,16 @@ export const SelectionOverlay: React.FC<SelectionOverlayProps> = ({
 
   const handleRotationMouseDown = (e: any) => {
     e.cancelBubble = true
-    if (!onRotate) return
+    if (!onRotationStart || !elementId) return
 
-    const centerX = x + width / 2
-    const centerY = y + height / 2
-    const startAngle = Math.atan2(e.evt.clientY - centerY, e.evt.clientX - centerX)
-
-    const handleMouseMove = (moveEvent: MouseEvent) => {
-      const currentAngle = Math.atan2(moveEvent.clientY - centerY, moveEvent.clientX - centerX)
-      const deltaAngle = currentAngle - startAngle
-      onRotate(deltaAngle * (180 / Math.PI))
-    }
-
-    const handleMouseUp = () => {
-      window.removeEventListener('mousemove', handleMouseMove)
-      window.removeEventListener('mouseup', handleMouseUp)
-    }
-
-    window.addEventListener('mousemove', handleMouseMove)
-    window.addEventListener('mouseup', handleMouseUp)
+    // Convert Konva event to MouseEvent-like object
+    const mouseEvent = new MouseEvent('mousedown', {
+      clientX: e.evt.clientX,
+      clientY: e.evt.clientY,
+      bubbles: true,
+    })
+    
+    onRotationStart(elementId, mouseEvent)
   }
 
   const getCursor = (handle: ResizeHandle): string => {
@@ -138,7 +131,7 @@ export const SelectionOverlay: React.FC<SelectionOverlayProps> = ({
       ))}
 
       {/* Rotation handle */}
-      {onRotate && (
+      {showRotationHandle && onRotationStart && (
         <>
           {/* Line connecting to rotation handle */}
           <Rect
