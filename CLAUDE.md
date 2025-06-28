@@ -297,3 +297,25 @@ export default defineConfig({
   server: { port: 3000 },
 });
 ```
+
+## 项目文档
+
+### 设计文档
+- `analysis/cainiao-template-analysis.md` - 菜鸟官方模板设计器深度分析
+- `design/modern-template-editor-design.md` - 现代化模板编辑器设计方案
+- `design/implementation-plan.md` - 详细实施计划
+
+### 技术文档
+- `docs/2025 年现代前端技术栈：React 19、Tailwind 4、ESLint 9 与 Vite 7 技术深度调研报告.md` - 技术栈调研报告
+- `docs/菜鸟云打印标记语言规范(CNPL).md` - **重要：菜鸟打印标记语言规范，所有元素实现必须符合此规范**
+
+### CNPL 规范要点
+菜鸟云打印标记语言（CAINIAO PRINT LANGUAGE）定义了打印内容的标准规范：
+- 使用自定义 XML 标签描述样式信息
+- 支持嵌入 JS 代码片段（ES5 规范）
+- 二维坐标系，左上角为原点（0,0）
+- 使用相对坐标系统
+- 支持的元素：page、layout、text、table、barcode、image、line、rect 等
+- 表格元素规范：table 只能包含 tr，tr 只能包含 th 或 td
+- 样式规范：边框、字体、对齐、旋转等属性
+- 动态内容：支持循环、条件判断、数据绑定
