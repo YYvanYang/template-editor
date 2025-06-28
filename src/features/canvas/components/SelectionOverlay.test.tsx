@@ -5,14 +5,23 @@ import { SelectionOverlay } from './SelectionOverlay'
 import type { SelectionBox } from '../hooks/useElementSelection'
 
 // Mock react-konva
+// 注意：我们使用 div 元素而不是真实的 SVG 元素来避免 JSDOM 环境中的警告
+// 这是单元测试中的常见做法，因为：
+// 1. JSDOM 不完全支持 SVG 元素，会产生 "unrecognized tag" 警告
+// 2. 单元测试关注的是组件逻辑，而不是实际的 SVG 渲染
+// 3. 使用 data-* 属性保存原始属性值，便于测试断言
+// 如需测试真实的 SVG 渲染，应使用 E2E 测试或视觉回归测试
 vi.mock('react-konva', () => ({
-  Group: ({ children }: any) => <g>{children}</g>,
+  Group: ({ children, ...props }: any) => (
+    <div data-testid="konva-group" {...props}>{children}</div>
+  ),
   Rect: ({ x, y, width, height, onMouseDown, onMouseEnter, onMouseLeave, listening, ...props }: any) => (
-    <rect
-      x={x}
-      y={y}
-      width={width}
-      height={height}
+    <div
+      data-testid="konva-rect"
+      data-x={x}
+      data-y={y}
+      data-width={width}
+      data-height={height}
       onMouseDown={onMouseDown}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
@@ -21,10 +30,11 @@ vi.mock('react-konva', () => ({
     />
   ),
   Circle: ({ x, y, radius, onMouseDown, onMouseEnter, onMouseLeave, listening, ...props }: any) => (
-    <circle
-      cx={x}
-      cy={y}
-      r={radius}
+    <div
+      data-testid="konva-circle"
+      data-x={x}
+      data-y={y}
+      data-radius={radius}
       onMouseDown={onMouseDown}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
@@ -63,19 +73,19 @@ describe('SelectionOverlay', () => {
       const { container } = render(<SelectionOverlay selectionBounds={defaultBounds} />)
       
       // Check selection border
-      const border = container.querySelector('rect[stroke="#0969da"]')
+      const border = container.querySelector('[data-testid="konva-rect"][stroke="#0969da"]')
       expect(border).toBeTruthy()
-      expect(border).toHaveAttribute('x', '100')
-      expect(border).toHaveAttribute('y', '100')
-      expect(border).toHaveAttribute('width', '200')
-      expect(border).toHaveAttribute('height', '150')
+      expect(border).toHaveAttribute('data-x', '100')
+      expect(border).toHaveAttribute('data-y', '100')
+      expect(border).toHaveAttribute('data-width', '200')
+      expect(border).toHaveAttribute('data-height', '150')
     })
 
     it('should render 8 resize handles', () => {
       const { container } = render(<SelectionOverlay selectionBounds={defaultBounds} />)
       
       // Selection border + 8 handles = 9 rects
-      const rects = container.querySelectorAll('rect')
+      const rects = container.querySelectorAll('[data-testid="konva-rect"]')
       expect(rects.length).toBe(9)
       
       // Check handle positions
@@ -96,14 +106,14 @@ describe('SelectionOverlay', () => {
       )
       
       // Should have rotation line and circle
-      const circle = container.querySelector('circle')
+      const circle = container.querySelector('[data-testid="konva-circle"]')
       expect(circle).toBeTruthy()
-      expect(circle).toHaveAttribute('cx', '200') // center x
-      expect(circle).toHaveAttribute('cy', '80') // y - 20 offset
+      expect(circle).toHaveAttribute('data-x', '200') // center x
+      expect(circle).toHaveAttribute('data-y', '80') // y - 20 offset
       
       // Should have connecting line
-      const lines = Array.from(container.querySelectorAll('rect')).filter(rect =>
-        rect.getAttribute('width') === '1'
+      const lines = Array.from(container.querySelectorAll('[data-testid="konva-rect"]')).filter(rect =>
+        rect.getAttribute('data-width') === '1'
       )
       expect(lines.length).toBe(1)
     })
@@ -116,7 +126,7 @@ describe('SelectionOverlay', () => {
         <SelectionOverlay selectionBounds={defaultBounds} onResize={onResize} />
       )
       
-      const handles = Array.from(container.querySelectorAll('rect')).filter(rect => 
+      const handles = Array.from(container.querySelectorAll('[data-testid="konva-rect"]')).filter(rect => 
         rect.getAttribute('fill') === '#ffffff'
       )
       
@@ -136,7 +146,7 @@ describe('SelectionOverlay', () => {
     it('should update cursor on handle hover', () => {
       const { container } = render(<SelectionOverlay selectionBounds={defaultBounds} />)
       
-      const handles = Array.from(container.querySelectorAll('rect')).filter(rect => 
+      const handles = Array.from(container.querySelectorAll('[data-testid="konva-rect"]')).filter(rect => 
         rect.getAttribute('fill') === '#ffffff'
       )
       
@@ -167,7 +177,7 @@ describe('SelectionOverlay', () => {
         />
       )
       
-      const circle = container.querySelector('circle')
+      const circle = container.querySelector('[data-testid="konva-circle"]')
       expect(circle).toBeTruthy()
       
       const mockEvent = {
@@ -184,7 +194,7 @@ describe('SelectionOverlay', () => {
     it('should position handles correctly', () => {
       const { container } = render(<SelectionOverlay selectionBounds={defaultBounds} />)
       
-      const handles = Array.from(container.querySelectorAll('rect')).filter(rect => 
+      const handles = Array.from(container.querySelectorAll('[data-testid="konva-rect"]')).filter(rect => 
         rect.getAttribute('fill') === '#ffffff'
       )
       
@@ -202,8 +212,8 @@ describe('SelectionOverlay', () => {
       
       handles.forEach((handle, index) => {
         const expected = expectedPositions[index]
-        expect(handle).toHaveAttribute('x', expected.x.toString())
-        expect(handle).toHaveAttribute('y', expected.y.toString())
+        expect(handle).toHaveAttribute('data-x', expected.x.toString())
+        expect(handle).toHaveAttribute('data-y', expected.y.toString())
       })
     })
   })

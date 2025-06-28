@@ -7,6 +7,8 @@ import { BarcodeType } from '@/features/elements/types/barcode.types';
 import * as barcodeGenerator from '@/features/elements/barcode/barcode-generator';
 
 // Mock react-konva components
+// 使用 div 元素替代 Konva 组件以避免 JSDOM 环境限制
+// 参见 SelectionOverlay.test.tsx 中的详细说明
 vi.mock('react-konva', () => ({
   Group: ({ children, onClick, onTap, listening, ...props }: any) => (
     <div data-testid="konva-group" onClick={onClick} data-listening={listening} {...props}>{children}</div>

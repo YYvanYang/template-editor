@@ -6,6 +6,8 @@ import { TableElement } from '@/features/elements/table/TableElement';
 import type { TableRow, TableCell } from '@/features/elements/types/table.types';
 
 // Mock react-konva components
+// 使用 div 元素替代 Konva 组件以避免 JSDOM 环境限制
+// 参见 SelectionOverlay.test.tsx 中的详细说明
 vi.mock('react-konva', () => ({
   Group: ({ children, listening, ...props }: any) => (
     <div data-testid="konva-group" data-listening={listening} {...props}>{children}</div>

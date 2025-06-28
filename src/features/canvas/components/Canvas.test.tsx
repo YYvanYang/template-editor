@@ -5,6 +5,8 @@ import { Canvas } from './Canvas'
 import { useEditorStore } from '@/features/editor/stores/editor.store'
 
 // Mock Konva
+// 使用 div 元素替代 Konva 组件以避免 JSDOM 环境限制
+// 参见 SelectionOverlay.test.tsx 中的详细说明
 vi.mock('react-konva', () => ({
   Stage: React.forwardRef(({ children, onWheel, scaleX, scaleY, x, y, ...props }: any, ref: any) => {
     const stageRef = React.useRef({
