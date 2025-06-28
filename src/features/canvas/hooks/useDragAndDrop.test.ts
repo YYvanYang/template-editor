@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { renderHook, act } from '@testing-library/react'
+import { renderHook, act, waitFor } from '@testing-library/react'
 import { useDragAndDrop } from './useDragAndDrop'
 import { useEditorStore } from '@/features/editor/stores/editor.store'
 import type { BaseElementData } from '@/features/elements'
@@ -94,7 +94,7 @@ describe('useDragAndDrop', () => {
   })
   
   describe('Drag Move', () => {
-    it('should update element positions during drag', () => {
+    it('should update element positions during drag', async () => {
       const onDragMove = vi.fn()
       const { result } = renderHook(() => useDragAndDrop({ onDragMove }))
       
@@ -105,11 +105,14 @@ describe('useDragAndDrop', () => {
       expect(result.current.isDragging).toBe(false)
       
       act(() => {
-        result.current.startDrag(startEvent)
+        result.current.startDrag(startEvent, 'elem1')
       })
       
-      // Check that drag is started
-      expect(result.current.isDragging).toBe(true)
+      // Wait for state update
+      await waitFor(() => {
+        expect(result.current.isDragging).toBe(true)
+      })
+      
       expect(result.current.draggedElementIds).toEqual(new Set(['elem1']))
       
       // Move
@@ -135,7 +138,7 @@ describe('useDragAndDrop', () => {
       expect(mockStore.updateElements).not.toHaveBeenCalled()
     })
     
-    it('should snap to grid when enabled', () => {
+    it('should snap to grid when enabled', async () => {
       const { result } = renderHook(() => 
         useDragAndDrop({ snapToGrid: true, gridSize: 10 })
       )
@@ -143,9 +146,13 @@ describe('useDragAndDrop', () => {
       // Start drag
       const startEvent = new MouseEvent('mousedown', { clientX: 150, clientY: 150 })
       act(() => {
-        result.current.startDrag(startEvent)
+        result.current.startDrag(startEvent, 'elem1')
       })
       
+      // Wait for state update
+      await waitFor(() => {
+        expect(result.current.isDragging).toBe(true)
+      })
       
       // Move to position that needs snapping
       const moveEvent = new MouseEvent('mousemove', { clientX: 163, clientY: 167 })
@@ -161,16 +168,20 @@ describe('useDragAndDrop', () => {
   })
   
   describe('Drag End', () => {
-    it('should end drag and add history entry', () => {
+    it('should end drag and add history entry', async () => {
       const onDragEnd = vi.fn()
       const { result } = renderHook(() => useDragAndDrop({ onDragEnd }))
       
       // Start drag
       const startEvent = new MouseEvent('mousedown', { clientX: 150, clientY: 150 })
       act(() => {
-        result.current.startDrag(startEvent)
+        result.current.startDrag(startEvent, 'elem1')
       })
       
+      // Wait for state update
+      await waitFor(() => {
+        expect(result.current.isDragging).toBe(true)
+      })
       
       // Move
       const moveEvent = new MouseEvent('mousemove', { clientX: 200, clientY: 180 })
@@ -194,7 +205,7 @@ describe('useDragAndDrop', () => {
       // Start drag
       const startEvent = new MouseEvent('mousedown', { clientX: 150, clientY: 150 })
       act(() => {
-        result.current.startDrag(startEvent)
+        result.current.startDrag(startEvent, 'elem1')
       })
       
       // End drag without moving
@@ -207,15 +218,19 @@ describe('useDragAndDrop', () => {
   })
   
   describe('Cancel Drag', () => {
-    it('should restore original positions on cancel', () => {
+    it('should restore original positions on cancel', async () => {
       const { result } = renderHook(() => useDragAndDrop())
       
       // Start drag
       const startEvent = new MouseEvent('mousedown', { clientX: 150, clientY: 150 })
       act(() => {
-        result.current.startDrag(startEvent)
+        result.current.startDrag(startEvent, 'elem1')
       })
       
+      // Wait for state update
+      await waitFor(() => {
+        expect(result.current.isDragging).toBe(true)
+      })
       
       // Move
       const moveEvent = new MouseEvent('mousemove', { clientX: 200, clientY: 180 })
@@ -237,7 +252,7 @@ describe('useDragAndDrop', () => {
   })
   
   describe('Helper Functions', () => {
-    it('should get drag offset', () => {
+    it('should get drag offset', async () => {
       const { result } = renderHook(() => useDragAndDrop())
       
       // Not dragging
@@ -246,9 +261,13 @@ describe('useDragAndDrop', () => {
       // Start drag
       const startEvent = new MouseEvent('mousedown', { clientX: 150, clientY: 150 })
       act(() => {
-        result.current.startDrag(startEvent)
+        result.current.startDrag(startEvent, 'elem1')
       })
       
+      // Wait for state update
+      await waitFor(() => {
+        expect(result.current.isDragging).toBe(true)
+      })
       
       // Move
       const moveEvent = new MouseEvent('mousemove', { clientX: 200, clientY: 180 })
@@ -256,10 +275,13 @@ describe('useDragAndDrop', () => {
         result.current.handleDragMove(moveEvent)
       })
       
-      expect(result.current.getDragOffset()).toEqual({ x: 50, y: 30 })
+      // Wait a bit for state to settle
+      await waitFor(() => {
+        expect(result.current.getDragOffset()).toEqual({ x: 50, y: 30 })
+      })
     })
     
-    it('should check if element is dragging', () => {
+    it('should check if element is dragging', async () => {
       const { result } = renderHook(() => useDragAndDrop())
       
       // Not dragging
@@ -268,11 +290,14 @@ describe('useDragAndDrop', () => {
       // Start drag
       const startEvent = new MouseEvent('mousedown', { clientX: 150, clientY: 150 })
       act(() => {
-        result.current.startDrag(startEvent)
+        result.current.startDrag(startEvent, 'elem1')
       })
       
+      // Wait for state update
+      await waitFor(() => {
+        expect(result.current.isElementDragging('elem1')).toBe(true)
+      })
       
-      expect(result.current.isElementDragging('elem1')).toBe(true)
       expect(result.current.isElementDragging('elem2')).toBe(false)
     })
   })

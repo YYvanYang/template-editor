@@ -108,3 +108,53 @@ src/
 - 避免使用 `forwardRef`（已标记为不推荐）
 - 使用新的 ref 作为 props 传递方式
 - 利用新的性能优化特性
+
+## 测试最佳实践（2025年更新）
+
+### React Hook 测试
+1. **使用 `@testing-library/react` 的 `renderHook`**
+   ```typescript
+   import { renderHook, act, waitFor } from '@testing-library/react'
+   ```
+
+2. **处理 useRef 和 state 同步问题**
+   - 问题：`useRef` 的值在测试中不会自动同步更新
+   - 解决方案：使用 `useEffect` 同步 ref 值
+   ```typescript
+   const stateRef = useRef(state)
+   useEffect(() => {
+     stateRef.current = state
+   }, [state])
+   ```
+
+3. **处理异步状态更新**
+   - 使用 `waitFor` 等待状态更新
+   ```typescript
+   await waitFor(() => {
+     expect(result.current.someState).toBe(expectedValue)
+   })
+   ```
+
+4. **Mock 复杂组件（如 Konva）**
+   ```typescript
+   vi.mock('react-konva', () => ({
+     Stage: React.forwardRef(({ children, onWheel, ...props }, ref) => {
+       // 模拟 Konva 事件结构
+       const handleWheel = (e) => {
+         if (onWheel) {
+           onWheel({ evt: e, target: { getPointerPosition: () => ({ x: 100, y: 100 }) } })
+         }
+       }
+       return <div onWheel={handleWheel} {...props}>{children}</div>
+     })
+   }))
+   ```
+
+5. **处理拖拽测试**
+   - 确保在 `startDrag` 时提供正确的参数
+   - 使用 `waitFor` 等待状态更新后再进行断言
+
+### 常见测试陷阱
+1. **Hook 的 ref 同步问题**：ref 更新不会触发重渲染，需要手动同步
+2. **事件模拟**：确保模拟的事件包含必要的属性（如 `preventDefault`）
+3. **异步更新**：React 18+ 的批量更新可能导致状态不立即更新

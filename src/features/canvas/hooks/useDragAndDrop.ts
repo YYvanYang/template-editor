@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useRef, useState, useEffect } from 'react'
 import { useEditorStore } from '@/features/editor/stores/editor.store'
 import type { BaseElementData } from '@/features/elements'
 
@@ -41,7 +41,11 @@ export function useDragAndDrop(options: UseDragAndDropOptions = {}) {
   })
   
   const dragStateRef = useRef<DragState>(dragState)
-  dragStateRef.current = dragState
+  
+  // Update ref whenever state changes
+  useEffect(() => {
+    dragStateRef.current = dragState
+  }, [dragState])
   
   const initialPositionsRef = useRef<Map<string, { x: number; y: number }>>(new Map())
   
