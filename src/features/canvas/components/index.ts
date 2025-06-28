@@ -1,3 +1,7 @@
 export { Canvas } from './Canvas'
 export { Grid } from './Grid'
 export * from './SelectionOverlay'
+export { Ruler } from './Ruler'
+export { RulerCorner } from './RulerCorner'
+export { CanvasWithRulers } from './CanvasWithRulers'
+export { AlignmentGuides } from './AlignmentGuides'

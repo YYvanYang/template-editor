@@ -1,5 +1,5 @@
 import { Layout } from '@/shared/components/Layout'
-import { Canvas } from '@/features/canvas/components'
+import { CanvasWithRulers } from '@/features/canvas/components'
 
 function App() {
   return (
@@ -17,7 +17,7 @@ function App() {
         
         {/* 中间画布区域 */}
         <div className="flex-1">
-          <Canvas />
+          <CanvasWithRulers showRulers={true} />
         </div>
         
         {/* 右侧属性面板 */}
