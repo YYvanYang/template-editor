@@ -1,7 +1,6 @@
 @import "tailwindcss";
 
 /* Tailwind CSS v4 Configuration */
-@config "./tailwind.config.js";
 
 /* Custom Theme Variables */
 @theme {

@@ -3,7 +3,12 @@ import { Canvas } from '@/features/canvas/components'
 
 function App() {
   return (
-    <Layout>
+    <>
+      {/* React 19 原生文档元数据支持 */}
+      <title>菜鸟模板编辑器</title>
+      <meta name="description" content="现代化的打印模板设计工具" />
+      
+      <Layout>
       <div className="flex-1 flex">
         {/* 左侧工具栏 */}
         <aside className="w-12 bg-slate-900 border-r border-border">
@@ -22,6 +27,7 @@ function App() {
         </aside>
       </div>
     </Layout>
+    </>
   )
 }
 
