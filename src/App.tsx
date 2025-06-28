@@ -1,7 +1,20 @@
 import { Layout } from '@/shared/components/Layout'
-import { CanvasWithRulers } from '@/features/canvas/components'
+import { CanvasWithRulers, CanvasWithCanvasRulers, CanvasWithScenaRulers, CanvasWithGuides } from '@/features/canvas/components'
+import { RulerDebug } from '@/debug/RulerDebug'
+import { CanvasRulerDebug } from '@/debug/CanvasRulerDebug'
 
 function App() {
+  // 临时添加调试模式
+  const isDebugMode = window.location.search.includes('debug=ruler');
+  const isCanvasDebugMode = window.location.search.includes('debug=canvas-ruler');
+  
+  if (isDebugMode) {
+    return <RulerDebug />;
+  }
+  
+  if (isCanvasDebugMode) {
+    return <CanvasRulerDebug />;
+  }
   return (
     <>
       {/* React 19 原生文档元数据支持 */}
@@ -17,7 +30,7 @@ function App() {
         
         {/* 中间画布区域 */}
         <div className="flex-1">
-          <CanvasWithRulers showRulers={true} />
+          <CanvasWithScenaRulers showRulers={true} />
         </div>
         
         {/* 右侧属性面板 */}
