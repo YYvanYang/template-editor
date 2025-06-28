@@ -70,6 +70,7 @@ export function calculateTicks(params: CalculateTicksParams): RulerTick[] {
   const { major: majorInterval, minor: minorInterval } = getTickInterval(scale, unit);
   
   // 计算可见范围（转换为实际单位）
+  // offset 是负值时表示画布向右/下拖动，所以起始值应该是正的
   const startValue = convertUnit(-offset / scale, 'px', unit);
   const endValue = convertUnit((length - offset) / scale, 'px', unit);
   
