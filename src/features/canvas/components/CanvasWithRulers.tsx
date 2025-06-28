@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Canvas } from './Canvas';
 import { Ruler } from './Ruler';
 import { RulerCorner } from './RulerCorner';
@@ -20,7 +20,9 @@ export const CanvasWithRulers: React.FC<CanvasWithRulersProps> = ({
 }) => {
   const [unit, setUnit] = useState(initialUnit);
   const [mousePosition, setMousePosition] = useState<{ x: number; y: number } | null>(null);
+  const [containerSize, setContainerSize] = useState({ width: 800, height: 600 });
   
+  const containerRef = useRef<HTMLDivElement>(null);
   const { canvas, template } = useEditorStore();
   const rulerThickness = 20;
   
@@ -30,6 +32,23 @@ export const CanvasWithRulers: React.FC<CanvasWithRulersProps> = ({
     y: canvas.offset.y,
     scale: canvas.zoom,
   };
+  
+  // 监听容器大小变化
+  useEffect(() => {
+    const updateSize = () => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        setContainerSize({
+          width: rect.width - (showRulers ? rulerThickness : 0),
+          height: rect.height - (showRulers ? rulerThickness : 0),
+        });
+      }
+    };
+    
+    updateSize();
+    window.addEventListener('resize', updateSize);
+    return () => window.removeEventListener('resize', updateSize);
+  }, [showRulers, rulerThickness]);
 
   // 处理单位切换
   const handleUnitChange = useCallback(() => {
@@ -65,7 +84,7 @@ export const CanvasWithRulers: React.FC<CanvasWithRulersProps> = ({
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <div ref={containerRef} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       {/* 顶部区域：角落 + 水平标尺 */}
       <div style={{ display: 'flex' }}>
         <RulerCorner
@@ -76,7 +95,7 @@ export const CanvasWithRulers: React.FC<CanvasWithRulersProps> = ({
         <div style={{ flex: 1, overflow: 'hidden' }}>
           <Ruler
             orientation="horizontal"
-            length={template.size.width}
+            length={containerSize.width}
             thickness={rulerThickness}
             unit={unit}
             canvasSize={template.size}
@@ -92,7 +111,7 @@ export const CanvasWithRulers: React.FC<CanvasWithRulersProps> = ({
         <div style={{ overflow: 'hidden' }}>
           <Ruler
             orientation="vertical"
-            length={template.size.height}
+            length={containerSize.height}
             thickness={rulerThickness}
             unit={unit}
             canvasSize={template.size}
