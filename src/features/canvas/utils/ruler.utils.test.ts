@@ -158,9 +158,18 @@ describe('ruler.utils', () => {
         offset: -200,
       });
       
-      // 应该有负位置的刻度
+      // 不应该有负位置的刻度（被过滤掉了）
       const negativeTicks = ticks.filter(t => t.position < 0);
-      expect(negativeTicks.length).toBeGreaterThan(0);
+      expect(negativeTicks.length).toBe(0);
+      
+      // 但应该有刻度存在
+      expect(ticks.length).toBeGreaterThan(0);
+      
+      // 所有刻度都应该在可见范围内
+      ticks.forEach(tick => {
+        expect(tick.position).toBeGreaterThanOrEqual(0);
+        expect(tick.position).toBeLessThanOrEqual(baseParams.length);
+      });
     });
 
     it('应该为不同单位生成合适的刻度', () => {

@@ -132,18 +132,7 @@ export const Ruler: React.FC<RulerProps> = (props) => {
             />
             {tick.label && (
               <div 
-                style={{
-                  ...labelStyle,
-                  // 确保标签在边界处不会被裁剪
-                  ...(orientation === 'horizontal' && {
-                    // 对于水平标尺，限制标签不超出左右边界
-                    left: Math.max(10, Math.min(length - 30, tick.position)),
-                  }),
-                  ...(orientation === 'vertical' && {
-                    // 对于垂直标尺，限制标签不超出上下边界
-                    top: Math.max(10, Math.min(length - 30, tick.position)),
-                  }),
-                }}
+                style={labelStyle}
                 data-testid={`label-${index}`}
               >
                 {tick.label}

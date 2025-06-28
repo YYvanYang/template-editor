@@ -91,7 +91,7 @@ export function calculateTicks(params: CalculateTicksParams): RulerTick[] {
     const position = convertUnit(value, unit, 'px') * scale + offset;
     
     // 跳过不可见的刻度
-    if (position < -10 || position > length + 10) continue;
+    if (position < 0 || position > length) continue;
     
     // 判断是否为主刻度
     const isMajor = Math.abs(value % majorInterval) < 0.0001;
