@@ -4,12 +4,12 @@
 这是一个现代化的模板编辑器项目，用于创建和编辑打印模板（类似菜鸟物流的打印模板设计器）。
 
 ## 技术栈
-- **框架**: React 19.x + TypeScript 5.x
+- **框架**: React 19.1.0 + TypeScript 5.x
 - **构建工具**: Vite 7.x
-- **样式**: Tailwind CSS 4.x
-- **状态管理**: Zustand
-- **画布渲染**: Konva.js
-- **测试**: Vitest
+- **样式**: Tailwind CSS 4.x (使用新的 CSS 配置方式)
+- **状态管理**: Zustand + Immer
+- **画布渲染**: Konva.js / React-Konva
+- **测试**: Vitest + React Testing Library
 - **代码规范**: ESLint 9.x + Prettier
 
 ## 开发规范
@@ -91,3 +91,20 @@ src/
 2. 拖拽操作使用防抖/节流
 3. 图片资源懒加载
 4. 使用 Web Worker 处理复杂计算
+
+## Tailwind CSS v4 配置说明
+项目使用 Tailwind CSS v4 的新配置方式：
+- 配置文件：`tailwind.config.css` (CSS 格式，非 JS)
+- 使用 `@theme` 定义设计系统变量
+- 通过 CSS 变量实现主题切换
+- 支持暗色模式自动切换
+
+### 主题变量命名规范
+- 颜色：`--color-{name}`
+- 间距：`--spacing-{size}`
+- 圆角：`--radius-{size}`
+
+## React 19 新特性使用
+- 避免使用 `forwardRef`（已标记为不推荐）
+- 使用新的 ref 作为 props 传递方式
+- 利用新的性能优化特性

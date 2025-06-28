@@ -1,4 +1,5 @@
 import { Layout } from '@/shared/components/Layout'
+import { Canvas } from '@/features/canvas/components'
 
 function App() {
   return (
@@ -10,12 +11,8 @@ function App() {
         </aside>
         
         {/* 中间画布区域 */}
-        <div className="flex-1 bg-gray-50 p-8">
-          <div className="max-w-4xl mx-auto">
-            <div className="bg-white rounded-lg shadow-sm border border-border h-96 flex items-center justify-center">
-              <p className="text-muted-foreground">画布区域</p>
-            </div>
-          </div>
+        <div className="flex-1">
+          <Canvas />
         </div>
         
         {/* 右侧属性面板 */}
