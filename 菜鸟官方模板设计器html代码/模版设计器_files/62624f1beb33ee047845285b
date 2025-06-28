@@ -1,0 +1,9 @@
+var xhr = new XMLHttpRequest();
+xhr.addEventListener('load', function() {
+  var script = document.createElement('script');
+  script.appendChild(document.createTextNode(this.responseText));
+  document.head.appendChild(script);
+});
+xhr.withCredentials = true;
+xhr.open("GET", 'https://links.alipay.com/widgetInit/62624f1beb33ee047845285b/script', true);
+xhr.send();

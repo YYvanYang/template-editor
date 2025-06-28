@@ -70,7 +70,7 @@ export const Ruler: React.FC<RulerProps> = (props) => {
     width: orientation === 'horizontal' ? length : thickness,
     height: orientation === 'horizontal' ? thickness : length,
     backgroundColor,
-    overflow: 'hidden',
+    overflow: 'visible', // 改为 visible，让内容可以超出边界
     cursor: onClick ? 'pointer' : 'default',
     userSelect: 'none',
     borderRight: orientation === 'vertical' ? `1px solid ${tickColor}` : undefined,
@@ -83,8 +83,19 @@ export const Ruler: React.FC<RulerProps> = (props) => {
       onClick={handleClick}
       data-testid={`ruler-${orientation}`}
     >
-      {/* 刻度线和标签 */}
-      {ticks.map((tick, index) => {
+      {/* 内部容器，用于处理偏移 */}
+      <div
+        style={{
+          position: 'absolute',
+          width: '100%',
+          height: '100%',
+          transform: orientation === 'horizontal' 
+            ? `translateX(${actualOffset}px)` 
+            : `translateY(${actualOffset}px)`,
+        }}
+      >
+        {/* 刻度线和标签 */}
+        {ticks.map((tick, index) => {
         const tickStyle: React.CSSProperties = orientation === 'horizontal'
           ? {
               position: 'absolute',
@@ -141,6 +152,7 @@ export const Ruler: React.FC<RulerProps> = (props) => {
           </React.Fragment>
         );
       })}
+      </div>
 
       {/* 鼠标位置指示器 */}
       {mouseIndicatorPosition !== null && (

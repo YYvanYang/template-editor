@@ -87,11 +87,11 @@ export function calculateTicks(params: CalculateTicksParams): RulerTick[] {
   
   // 生成刻度
   for (let value = startTick; value <= endValue; value += step) {
-    // 计算屏幕位置
-    const position = convertUnit(value, unit, 'px') * scale + offset;
+    // 计算屏幕位置（不包含偏移，偏移通过transform处理）
+    const position = convertUnit(value, unit, 'px') * scale;
     
-    // 跳过不可见的刻度
-    if (position < 0 || position > length) continue;
+    // 只生成在合理范围内的刻度
+    if (position < -length || position > length * 2) continue;
     
     // 判断是否为主刻度
     const isMajor = Math.abs(value % majorInterval) < 0.0001;
