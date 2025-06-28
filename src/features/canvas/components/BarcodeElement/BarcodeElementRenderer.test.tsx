@@ -1,6 +1,6 @@
 import React from 'react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, waitFor, act } from '@testing-library/react';
 import { BarcodeElementRenderer, BarcodePreview } from './BarcodeElementRenderer';
 import { BarcodeElement } from '@/features/elements/barcode/BarcodeElement';
 import { BarcodeType } from '@/features/elements/types/barcode.types';
@@ -12,7 +12,7 @@ vi.mock('react-konva', () => ({
     <div data-testid="konva-group" onClick={onClick} {...props}>{children}</div>
   ),
   Rect: ({ strokeWidth, ...props }: any) => (
-    <div data-testid="konva-rect" {...(strokeWidth ? { strokeWidth: String(strokeWidth) } : {})} {...props} />
+    <div data-testid="konva-rect" {...(strokeWidth ? { 'data-strokewidth': String(strokeWidth) } : {})} {...props} />
   ),
   Image: ({ ...props }: any) => <div data-testid="konva-image" {...props} />,
   Text: ({ text, fontSize, fontFamily, ...props }: any) => (
@@ -37,18 +37,20 @@ vi.mock('@/features/data-binding', () => ({
 }));
 
 // Mock barcode generator
-vi.mock('@/features/elements/barcode/barcode-generator', () => ({
-  generateBarcode: vi.fn().mockResolvedValue(undefined),
-  isBarcodeTypeSupported: vi.fn().mockReturnValue(true),
-}));
+vi.mock('@/features/elements/barcode/barcode-generator');
 
 describe('BarcodeElementRenderer', () => {
   let mockCanvas: HTMLCanvasElement;
+  let originalCreateElement: typeof document.createElement;
   
   beforeEach(() => {
     vi.clearAllMocks();
     
-    // Mock canvas
+    // Setup barcode generator mocks
+    vi.mocked(barcodeGenerator.generateBarcode).mockResolvedValue(undefined);
+    vi.mocked(barcodeGenerator.isBarcodeTypeSupported).mockReturnValue(true);
+    
+    // Mock canvas with proper HTMLElement interface
     mockCanvas = {
       width: 200,
       height: 100,
@@ -56,23 +58,53 @@ describe('BarcodeElementRenderer', () => {
         clearRect: vi.fn(),
       }),
       toDataURL: vi.fn().mockReturnValue('data:image/png;base64,mock'),
+      setAttribute: vi.fn(),
+      getAttribute: vi.fn(),
+      style: {},
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
     } as any;
     
+    // Save original createElement
+    originalCreateElement = document.createElement.bind(document);
+    
     // Mock document.createElement
-    const originalCreateElement = document.createElement;
     document.createElement = vi.fn().mockImplementation((tag: string) => {
       if (tag === 'canvas') {
         return mockCanvas;
       }
-      return originalCreateElement.call(document, tag);
+      return originalCreateElement(tag);
     });
     
-    // Mock Image constructor
-    global.Image = vi.fn().mockImplementation(() => ({
-      src: '',
-      onload: null,
-      onerror: null,
-    })) as any;
+    // Mock Image constructor with onload trigger
+    global.Image = vi.fn().mockImplementation(() => {
+      const img = {
+        src: '',
+        onload: null,
+        onerror: null,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      };
+      // Trigger onload when src is set
+      Object.defineProperty(img, 'src', {
+        set(value) {
+          this._src = value;
+          if (this.onload) {
+            setTimeout(() => this.onload(), 0);
+          }
+        },
+        get() {
+          return this._src;
+        }
+      });
+      return img;
+    }) as any;
+  });
+  
+  afterEach(() => {
+    // Restore original createElement
+    document.createElement = originalCreateElement;
+    vi.restoreAllMocks();
   });
   
   const createTestElement = (overrides?: Partial<any>) => {
@@ -98,38 +130,51 @@ describe('BarcodeElementRenderer', () => {
       });
     });
     
-    it('应该在正确位置渲染', () => {
+    it('应该在正确位置渲染', async () => {
       const element = createTestElement({
         position: { x: 50, y: 100 },
       });
       
-      const { container } = render(
-        <BarcodeElementRenderer element={element} />
-      );
+      let container: HTMLElement;
+      await act(async () => {
+        ({ container } = render(
+          <BarcodeElementRenderer element={element} />
+        ));
+      });
       
-      const group = container.querySelector('[data-testid="konva-group"]');
-      expect(group).toHaveAttribute('x', '50');
-      expect(group).toHaveAttribute('y', '100');
+      await waitFor(() => {
+        const group = container.querySelector('[data-testid="konva-group"]');
+        expect(group).toHaveAttribute('x', '50');
+        expect(group).toHaveAttribute('y', '100');
+      });
     });
     
-    it('应该应用旋转', () => {
+    it('应该应用旋转', async () => {
       const element = createTestElement({
         rotation: 45,
       });
       
-      const { container } = render(
-        <BarcodeElementRenderer element={element} />
-      );
+      let container: HTMLElement;
+      await act(async () => {
+        ({ container } = render(
+          <BarcodeElementRenderer element={element} />
+        ));
+      });
       
-      const group = container.querySelector('[data-testid="konva-group"]');
-      expect(group).toHaveAttribute('rotation', '45');
+      await waitFor(() => {
+        const group = container.querySelector('[data-testid="konva-group"]');
+        expect(group).toHaveAttribute('rotation', '45');
+      });
     });
   });
   
   describe('条码生成', () => {
     it('应该调用生成函数', async () => {
       const element = createTestElement();
-      render(<BarcodeElementRenderer element={element} />);
+      
+      await act(async () => {
+        render(<BarcodeElementRenderer element={element} />);
+      });
       
       await waitFor(() => {
         expect(barcodeGenerator.generateBarcode).toHaveBeenCalledWith(
@@ -142,9 +187,13 @@ describe('BarcodeElementRenderer', () => {
     
     it('应该显示生成的图片', async () => {
       const element = createTestElement();
-      const { container } = render(
-        <BarcodeElementRenderer element={element} />
-      );
+      let container: HTMLElement;
+      
+      await act(async () => {
+        ({ container } = render(
+          <BarcodeElementRenderer element={element} />
+        ));
+      });
       
       await waitFor(() => {
         const image = container.querySelector('[data-testid="konva-image"]');
@@ -255,7 +304,7 @@ describe('BarcodeElementRenderer', () => {
       
       const rect = container.querySelector('[data-testid="konva-rect"]');
       expect(rect).toHaveAttribute('stroke', '#0000ff');
-      expect(rect).toHaveAttribute('strokewidth', '2');
+      expect(rect).toHaveAttribute('data-strokewidth', '2');
     });
     
     it('应该处理不可见状态', async () => {
@@ -263,9 +312,12 @@ describe('BarcodeElementRenderer', () => {
         visible: false,
       });
       
-      const { container } = render(
-        <BarcodeElementRenderer element={element} />
-      );
+      let container: HTMLElement;
+      await act(async () => {
+        ({ container } = render(
+          <BarcodeElementRenderer element={element} />
+        ));
+      });
       
       await waitFor(() => {
         const rect = container.querySelector('[data-testid="konva-rect"]');
@@ -308,22 +360,45 @@ describe('BarcodeElementRenderer', () => {
 
 describe('BarcodePreview', () => {
   let mockCanvas: HTMLCanvasElement;
-  let mockContext: any;
+  let originalCreateElement: typeof document.createElement;
   
   beforeEach(() => {
     vi.clearAllMocks();
     
-    mockContext = {
-      clearRect: vi.fn(),
-    };
+    // Setup barcode generator mocks
+    vi.mocked(barcodeGenerator.generateBarcode).mockResolvedValue(undefined);
+    vi.mocked(barcodeGenerator.isBarcodeTypeSupported).mockReturnValue(true);
     
-    mockCanvas = document.createElement('canvas');
-    Object.defineProperties(mockCanvas, {
-      width: { value: 200, writable: true },
-      height: { value: 100, writable: true },
-      getContext: { value: vi.fn().mockReturnValue(mockContext) },
-      toDataURL: { value: vi.fn().mockReturnValue('data:image/png;base64,mock') },
+    // Create a proper mock canvas element
+    mockCanvas = {
+      width: 0,
+      height: 0,
+      getContext: vi.fn().mockReturnValue({
+        clearRect: vi.fn(),
+        fillRect: vi.fn(),
+        drawImage: vi.fn(),
+      }),
+      toDataURL: vi.fn().mockReturnValue('data:image/png;base64,mock'),
+      setAttribute: vi.fn(),
+      getAttribute: vi.fn(),
+      style: {},
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    } as any;
+    
+    // Mock ref assignment
+    Object.defineProperty(mockCanvas, 'width', {
+      get() { return this._width || 0; },
+      set(value) { this._width = value; }
     });
+    Object.defineProperty(mockCanvas, 'height', {
+      get() { return this._height || 0; },
+      set(value) { this._height = value; }
+    });
+  });
+  
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
   
   it('应该渲染预览容器', () => {
@@ -352,11 +427,9 @@ describe('BarcodePreview', () => {
       value: 'PREVIEW',
     });
     
-    // Mock canvas ref
-    const mockCanvasRef = { current: mockCanvas };
-    vi.spyOn(React, 'useRef').mockReturnValue(mockCanvasRef);
-    
-    render(<BarcodePreview element={element} width={150} height={60} />);
+    await act(async () => {
+      render(<BarcodePreview element={element} width={150} height={60} />);
+    });
     
     await waitFor(() => {
       expect(barcodeGenerator.generateBarcode).toHaveBeenCalledWith(
@@ -364,7 +437,7 @@ describe('BarcodePreview', () => {
           barcodeType: BarcodeType.CODE128,
           size: { width: 150, height: 60 },
         }),
-        mockCanvas,
+        expect.any(HTMLCanvasElement),
         'PREVIEW'
       );
     });
@@ -381,11 +454,10 @@ describe('BarcodePreview', () => {
       value: 'ERROR',
     });
     
-    // Mock canvas ref
-    const mockCanvasRef = { current: mockCanvas };
-    vi.spyOn(React, 'useRef').mockReturnValue(mockCanvasRef);
-    
-    const { container } = render(<BarcodePreview element={element} />);
+    let container: HTMLElement;
+    await act(async () => {
+      ({ container } = render(<BarcodePreview element={element} />));
+    });
     
     await waitFor(() => {
       const errorDiv = container.querySelector('div[style*="position: absolute"]');

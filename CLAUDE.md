@@ -221,6 +221,65 @@ src/
 2. **事件模拟**：确保模拟的事件包含必要的属性（如 `preventDefault`）
 3. **异步更新**：React 18+ 的批量更新可能导致状态不立即更新
 
+### React 19 act() 警告处理
+React 19 对测试中的状态更新有更严格的要求，所有可能导致状态更新的操作都需要包装在 act() 中：
+
+1. **组件渲染时的异步操作**
+   ```typescript
+   // ❌ 错误：会产生 act() 警告
+   const { container } = render(<ComponentWithAsyncEffect />);
+   
+   // ✅ 正确：使用 act 包装
+   let container: HTMLElement;
+   await act(async () => {
+     ({ container } = render(<ComponentWithAsyncEffect />));
+   });
+   ```
+
+2. **useEffect 中的异步状态更新**
+   ```typescript
+   // 当组件在 useEffect 中有异步操作时
+   await act(async () => {
+     render(<BarcodeElementRenderer element={element} />);
+   });
+   
+   // 等待异步操作完成
+   await waitFor(() => {
+     expect(someAsyncResult).toBeTruthy();
+   });
+   ```
+
+3. **Canvas 和图片加载**
+   - Canvas 元素需要完整的 DOM API mock
+   - Image 对象的 onload 需要模拟触发
+   ```typescript
+   global.Image = vi.fn().mockImplementation(() => {
+     const img = {
+       src: '',
+       onload: null,
+       onerror: null,
+     };
+     // 设置 src 时触发 onload
+     Object.defineProperty(img, 'src', {
+       set(value) {
+         this._src = value;
+         if (this.onload) setTimeout(() => this.onload(), 0);
+       }
+     });
+     return img;
+   });
+   ```
+
+4. **Mock 初始化时机**
+   - 在 beforeEach 中重置所有 mock
+   - 确保每个测试的 mock 状态一致
+   ```typescript
+   beforeEach(() => {
+     vi.clearAllMocks();
+     vi.mocked(someFunction).mockReturnValue(defaultValue);
+   });
+   ```
+
 ## ESLint 9 扁平化配置
 
 ### 核心概念
