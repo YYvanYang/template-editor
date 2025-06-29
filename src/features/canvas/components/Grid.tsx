@@ -22,20 +22,20 @@ export const Grid: React.FC<GridProps> = ({ zoom, size, offset, unit = 'mm' }) =
     if (pixelsPerMm < 1.5) {
       // 极小缩放：50mm 网格
       gridInterval = 50
-    } else if (pixelsPerMm < 3) {
+    } else if (pixelsPerMm < 2.5) {
       // 小缩放：20mm 网格
       gridInterval = 20
-    } else if (pixelsPerMm < 7.5) {
+    } else if (pixelsPerMm < 3.5) {
       // 中小缩放：10mm 网格
       gridInterval = 10
-    } else if (pixelsPerMm < 15) {
-      // 中等缩放：5mm 网格
+    } else if (pixelsPerMm < 7.5) {
+      // 默认缩放：5mm 网格
       gridInterval = 5
-    } else if (pixelsPerMm < 30) {
-      // 大缩放：2mm 网格
+    } else if (pixelsPerMm < 15) {
+      // 中等缩放：2mm 网格
       gridInterval = 2
-    } else if (pixelsPerMm < 75) {
-      // 很大缩放：1mm 网格
+    } else if (pixelsPerMm < 30) {
+      // 大缩放：1mm 网格
       gridInterval = 1
     } else {
       // 极大缩放：0.5mm 网格
