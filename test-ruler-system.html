@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>标尺系统测试</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        .test-container {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background: #f5f5f5;
+        }
+        .screenshot {
+            max-width: 100%;
+            border: 1px solid #ddd;
+            margin: 10px 0;
+        }
+        .info {
+            background: #e3f2fd;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .warning {
+            background: #fff3cd;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success {
+            background: #d4edda;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        iframe {
+            width: 100%;
+            height: 800px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <h1>模板编辑器标尺系统测试</h1>
+    
+    <div class="info">
+        <h3>测试目标：</h3>
+        <ul>
+            <li>检查纵坐标（垂直标尺）的刻度显示是否正确</li>
+            <li>验证0刻度是否与画布顶部对齐</li>
+            <li>测试辅助线标签是否显示正常</li>
+            <li>检查不同缩放级别下标尺刻度的变化</li>
+        </ul>
+    </div>
+
+    <div class="test-container">
+        <h2>编辑器实时预览</h2>
+        <iframe id="editor-frame" src="http://localhost:3000"></iframe>
+    </div>
+
+    <div class="test-container">
+        <h2>测试步骤和结果</h2>
+        <div id="test-results"></div>
+    </div>
+
+    <script>
+        const testResults = document.getElementById('test-results');
+        
+        function log(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = type;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong>: ${message}`;
+            testResults.appendChild(div);
+        }
+
+        window.addEventListener('load', () => {
+            log('页面加载完成，请手动进行以下测试：');
+            log('1. 观察垂直标尺的刻度是否正确显示', 'info');
+            log('2. 拖动画布，查看0刻度是否与画布顶部对齐', 'info');
+            log('3. 创建辅助线，检查标签显示', 'info');
+            log('4. 调整缩放级别，观察标尺刻度变化', 'info');
+        });
+
+        // 监听iframe内容
+        const iframe = document.getElementById('editor-frame');
+        iframe.addEventListener('load', () => {
+            log('编辑器页面已加载', 'success');
+        });
+    </script>
+</body>
+</html>
