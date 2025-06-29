@@ -299,6 +299,7 @@ export class SmartSpacingDetector {
 
   /**
    * 检测网格布局
+   * 参考 Figma、Adobe XD、Sketch 等工具的最佳实践
    */
   private detectGridLayout(elements: ElementBounds[]): {
     elements: ElementBounds[];
@@ -307,31 +308,111 @@ export class SmartSpacingDetector {
   } | null {
     if (elements.length < 4) return null;
 
-    // 检测是否有规律的行列排布
-    const rows = this.detectAxisAlignmentGroups(elements, 'horizontal');
-    const cols = this.detectAxisAlignmentGroups(elements, 'vertical');
+    // 1. 智能检测行列 - 使用中心点聚类
+    const centers = elements.map(e => ({
+      x: e.centerX,
+      y: e.centerY,
+      element: e,
+    }));
 
-    // 查找最大的网格
-    for (const row of rows) {
-      for (const col of cols) {
-        const gridElements = row.elements.filter(el1 =>
-          col.elements.some(el2 => el1.id === el2.id)
-        );
+    // 2. 检测X轴和Y轴的对齐线
+    const xAlignments = this.detectAlignmentLines(centers.map(c => c.x));
+    const yAlignments = this.detectAlignmentLines(centers.map(c => c.y));
 
-        if (gridElements.length >= 4) {
-          const uniqueRows = new Set(gridElements.map(el => el.centerY));
-          const uniqueCols = new Set(gridElements.map(el => el.centerX));
+    // 3. 需要至少2行2列才认为是网格
+    if (xAlignments.length < 2 || yAlignments.length < 2) return null;
 
-          return {
-            elements: gridElements,
-            rows: uniqueRows.size,
-            cols: uniqueCols.size,
-          };
+    // 4. 将元素分配到网格位置
+    const grid = new Map<string, ElementBounds>();
+    const gridElements: ElementBounds[] = [];
+    
+    centers.forEach(({ x, y, element }) => {
+      const colIndex = this.findClosestIndex(x, xAlignments);
+      const rowIndex = this.findClosestIndex(y, yAlignments);
+      
+      if (colIndex !== -1 && rowIndex !== -1) {
+        const key = `${rowIndex},${colIndex}`;
+        if (!grid.has(key)) { // 避免重复
+          grid.set(key, element);
+          gridElements.push(element);
         }
       }
+    });
+
+    // 5. 计算网格填充率
+    const totalCells = xAlignments.length * yAlignments.length;
+    const filledCells = grid.size;
+    const fillRate = filledCells / totalCells;
+
+    // 6. 检测是否为有效网格（参考业界标准）
+    // - 至少填充50%的单元格
+    // - 或者元素数量符合完整行/列模式
+    const isCompleteRows = filledCells === xAlignments.length * Math.floor(filledCells / xAlignments.length);
+    const isCompleteCols = filledCells === yAlignments.length * Math.floor(filledCells / yAlignments.length);
+    
+    if (fillRate >= 0.5 || isCompleteRows || isCompleteCols) {
+      return {
+        elements: gridElements,
+        rows: yAlignments.length,
+        cols: xAlignments.length,
+      };
     }
 
     return null;
+  }
+
+  /**
+   * 检测对齐线（使用聚类算法）
+   * 参考 Figma 的自动对齐检测
+   */
+  private detectAlignmentLines(values: number[]): number[] {
+    if (values.length < 2) return [];
+
+    // 排序并去重相近的值
+    const sorted = [...values].sort((a, b) => a - b);
+    const alignments: number[] = [];
+    
+    let currentGroup: number[] = [sorted[0]];
+    
+    for (let i = 1; i < sorted.length; i++) {
+      const diff = sorted[i] - sorted[i - 1];
+      
+      // 如果间距小于容差阈值，归为同一组
+      if (diff <= this.tolerance * 3) {
+        currentGroup.push(sorted[i]);
+      } else {
+        // 计算当前组的平均值作为对齐线
+        const avg = currentGroup.reduce((sum, v) => sum + v, 0) / currentGroup.length;
+        alignments.push(avg);
+        currentGroup = [sorted[i]];
+      }
+    }
+    
+    // 处理最后一组
+    if (currentGroup.length > 0) {
+      const avg = currentGroup.reduce((sum, v) => sum + v, 0) / currentGroup.length;
+      alignments.push(avg);
+    }
+    
+    return alignments;
+  }
+
+  /**
+   * 找到最接近的对齐线索引
+   */
+  private findClosestIndex(value: number, alignments: number[]): number {
+    let closestIndex = -1;
+    let minDistance = Infinity;
+    
+    alignments.forEach((alignment, index) => {
+      const distance = Math.abs(value - alignment);
+      if (distance <= this.tolerance * 3 && distance < minDistance) {
+        minDistance = distance;
+        closestIndex = index;
+      }
+    });
+    
+    return closestIndex;
   }
 
   /**
