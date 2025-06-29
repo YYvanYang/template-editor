@@ -502,6 +502,41 @@ if (pixelsPerMm < 3.5) {
 4. **性能优先**：使用 Canvas 而非 DOM，避免频繁重绘
 5. **用户体验**：合理的默认值、平滑的交互反馈
 
+### 标尺实时更新优化（2025年1月更新）
+
+#### 问题背景
+初始实现中，标尺只在拖动结束后更新（`onDragEnd`），与 Figma 等专业工具的体验不一致。
+
+#### 解决方案
+1. **添加 `onDragMove` 事件处理**
+   ```typescript
+   // 使用 requestAnimationFrame 进行节流
+   const handleDragMove = useCallback((e: KonvaEventObject<DragEvent>) => {
+     if (dragAnimationFrame.current) {
+       cancelAnimationFrame(dragAnimationFrame.current)
+     }
+     
+     dragAnimationFrame.current = requestAnimationFrame(() => {
+       const stage = e.target
+       setOffset({ x: stage.x(), y: stage.y() })
+     })
+   }, [setOffset])
+   ```
+
+2. **性能优化策略**
+   - 使用 `requestAnimationFrame` 确保更新与浏览器渲染同步
+   - 避免在单帧内多次更新，自动取消之前的帧
+   - 组件卸载时清理未完成的动画帧
+
+3. **保留 `onDragEnd`**
+   - 确保最终位置的准确性
+   - 清理动画帧引用
+
+#### 效果
+- 标尺刻度在拖动时实时跟随画布移动
+- 流畅的 60fps 更新，无卡顿感
+- 与业界领先设计工具保持一致的交互体验
+
 ## 专业对齐辅助线系统
 
 ### 系统概述
