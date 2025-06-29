@@ -222,9 +222,9 @@ export const RulerCanvas: React.FC<RulerProps> = (props) => {
       ctx.setLineDash([]); // 恢复实线
 
       // 绘制数值标签
-      // mousePos 是相对于画布容器的坐标（已经是相对于画布左上角的位置）
-      // 直接转换为画布坐标系中的像素值
-      const canvasPixelValue = mousePos / viewport.scale;
+      // mousePos 是相对于容器的坐标，需要减去画布偏移得到相对于画布的坐标
+      const viewportOffset = orientation === 'horizontal' ? viewport.x : viewport.y;
+      const canvasPixelValue = (mousePos - viewportOffset) / viewport.scale;
       // 从像素转换为单位值
       const unitValue = canvasPixelValue / tickParams.unitConfig.toPx;
       const label = `${unitValue.toFixed(1)}${unit}`;
