@@ -10,20 +10,18 @@ if (!global.cancelAnimationFrame) {
   global.cancelAnimationFrame = vi.fn((id) => clearTimeout(id))
 }
 
-// Mock Canvas API
+// Mock Canvas API - simplified to only include methods actually used
 const createMockContext = () => ({
   // Canvas reference
   canvas: {} as HTMLCanvasElement,
   
-  // Drawing methods
+  // Style properties
   fillStyle: '',
   strokeStyle: '',
   lineWidth: 1,
   font: '',
   textAlign: 'left' as CanvasTextAlign,
   textBaseline: 'alphabetic' as CanvasTextBaseline,
-  globalAlpha: 1,
-  globalCompositeOperation: 'source-over' as GlobalCompositeOperation,
   
   // State methods
   save: vi.fn(),
@@ -33,102 +31,37 @@ const createMockContext = () => ({
   scale: vi.fn(),
   translate: vi.fn(),
   rotate: vi.fn(),
-  setTransform: vi.fn(),
-  getTransform: vi.fn(() => new DOMMatrix()),
-  resetTransform: vi.fn(),
   
   // Drawing methods
-  clearRect: vi.fn(),
   fillRect: vi.fn(),
   strokeRect: vi.fn(),
-  
-  // Text methods
   fillText: vi.fn(),
-  strokeText: vi.fn(),
-  measureText: vi.fn(() => ({ 
-    width: 50,
-    actualBoundingBoxLeft: 0,
-    actualBoundingBoxRight: 50,
-    actualBoundingBoxAscent: 10,
-    actualBoundingBoxDescent: 0,
-    fontBoundingBoxAscent: 10,
-    fontBoundingBoxDescent: 0,
-  })),
   
   // Path methods
   beginPath: vi.fn(),
-  closePath: vi.fn(),
   moveTo: vi.fn(),
   lineTo: vi.fn(),
-  arc: vi.fn(),
-  arcTo: vi.fn(),
-  ellipse: vi.fn(),
-  rect: vi.fn(),
-  quadraticCurveTo: vi.fn(),
-  bezierCurveTo: vi.fn(),
-  
-  // Path drawing
   stroke: vi.fn(),
-  fill: vi.fn(),
-  clip: vi.fn(),
-  isPointInPath: vi.fn(() => false),
-  isPointInStroke: vi.fn(() => false),
   
-  // Image methods
+  // Line dash
+  setLineDash: vi.fn(),
+  getLineDash: vi.fn(() => []),
+  
+  // Additional methods that might be needed by other components
+  clearRect: vi.fn(),
   drawImage: vi.fn(),
-  createImageData: vi.fn((sw: number | ImageData, sh?: number) => ({
-    data: new Uint8ClampedArray(4),
-    width: typeof sw === 'number' ? sw : sw.width,
-    height: typeof sw === 'number' ? (sh || 1) : sw.height,
-    colorSpace: 'srgb' as PredefinedColorSpace,
-  })),
+  measureText: vi.fn(() => ({ width: 50 })),
   getImageData: vi.fn(() => ({
     data: new Uint8ClampedArray(4),
     width: 1,
     height: 1,
-    colorSpace: 'srgb' as PredefinedColorSpace,
   })),
-  putImageData: vi.fn(),
-  
-  // Pattern & Gradient
-  createPattern: vi.fn(() => ({} as CanvasPattern)),
-  createLinearGradient: vi.fn(() => ({
-    addColorStop: vi.fn(),
+  createImageData: vi.fn(() => ({
+    data: new Uint8ClampedArray(4),
+    width: 1,
+    height: 1,
   })),
-  createRadialGradient: vi.fn(() => ({
-    addColorStop: vi.fn(),
-  })),
-  createConicGradient: vi.fn(() => ({
-    addColorStop: vi.fn(),
-  })),
-  
-  // Line styles
-  setLineDash: vi.fn(),
-  getLineDash: vi.fn(() => []),
-  lineDashOffset: 0,
-  lineJoin: 'miter' as CanvasLineJoin,
-  lineCap: 'butt' as CanvasLineCap,
-  miterLimit: 10,
-  
-  // Shadows
-  shadowBlur: 0,
-  shadowColor: 'rgba(0, 0, 0, 0)',
-  shadowOffsetX: 0,
-  shadowOffsetY: 0,
-  
-  // Filters
-  filter: 'none',
-  
-  // Image smoothing
-  imageSmoothingEnabled: true,
-  imageSmoothingQuality: 'low' as ImageSmoothingQuality,
-  
-  // Text drawing direction
-  direction: 'ltr' as CanvasDirection,
-  
-  // Canvas state
-  getContextAttributes: vi.fn(() => ({ alpha: true })),
-} as CanvasRenderingContext2D)
+} as unknown as CanvasRenderingContext2D)
 
 // Create a properly typed mock function for getContext
 const getContextMock = vi.fn(function(
