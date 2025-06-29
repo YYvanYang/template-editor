@@ -537,6 +537,39 @@ if (pixelsPerMm < 3.5) {
 - 流畅的 60fps 更新，无卡顿感
 - 与业界领先设计工具保持一致的交互体验
 
+### 鼠标坐标显示修复（2025年1月更新）
+
+#### 问题描述
+鼠标辅助线显示的坐标是相对于容器的，而不是相对于画布左上角的，导致：
+- 拖动画布后，坐标显示不正确
+- 鼠标在画布(0,0)位置时，不显示0mm
+
+#### 根本原因
+在 `RulerCanvas.tsx` 中计算鼠标坐标时，没有考虑画布的偏移（viewport offset）：
+```typescript
+// 错误：直接使用鼠标位置
+const canvasPixelValue = mousePos / viewport.scale;
+
+// 正确：需要减去视口偏移
+const canvasPixelValue = (mousePos - viewportOffset) / viewport.scale;
+```
+
+#### 解决方案
+修改鼠标数值标签的计算逻辑，确保坐标相对于画布：
+```typescript
+// 获取对应方向的视口偏移
+const viewportOffset = orientation === 'horizontal' ? viewport.x : viewport.y;
+// 计算相对于画布的像素值
+const canvasPixelValue = (mousePos - viewportOffset) / viewport.scale;
+// 转换为单位值
+const unitValue = canvasPixelValue / tickParams.unitConfig.toPx;
+```
+
+#### 效果
+- ✅ 鼠标坐标始终相对于画布左上角(0,0)
+- ✅ 拖动画布后坐标值仍然准确
+- ✅ 与标尺刻度系统保持一致的坐标计算方式
+
 ## 专业对齐辅助线系统
 
 ### 系统概述
