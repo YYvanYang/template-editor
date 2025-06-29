@@ -12,63 +12,133 @@ if (!global.cancelAnimationFrame) {
 
 // Mock Canvas API
 const createMockContext = () => ({
+  // Canvas reference
+  canvas: {} as HTMLCanvasElement,
+  
+  // Drawing methods
   fillStyle: '',
   strokeStyle: '',
   lineWidth: 1,
   font: '',
-  textAlign: 'left',
-  textBaseline: 'alphabetic',
+  textAlign: 'left' as CanvasTextAlign,
+  textBaseline: 'alphabetic' as CanvasTextBaseline,
   globalAlpha: 1,
+  globalCompositeOperation: 'source-over' as GlobalCompositeOperation,
+  
+  // State methods
   save: vi.fn(),
   restore: vi.fn(),
+  
+  // Transform methods
   scale: vi.fn(),
   translate: vi.fn(),
   rotate: vi.fn(),
+  setTransform: vi.fn(),
+  getTransform: vi.fn(() => new DOMMatrix()),
+  resetTransform: vi.fn(),
+  
+  // Drawing methods
   clearRect: vi.fn(),
   fillRect: vi.fn(),
   strokeRect: vi.fn(),
+  
+  // Text methods
   fillText: vi.fn(),
   strokeText: vi.fn(),
-  measureText: vi.fn(() => ({ width: 50 })),
+  measureText: vi.fn(() => ({ 
+    width: 50,
+    actualBoundingBoxLeft: 0,
+    actualBoundingBoxRight: 50,
+    actualBoundingBoxAscent: 10,
+    actualBoundingBoxDescent: 0,
+    fontBoundingBoxAscent: 10,
+    fontBoundingBoxDescent: 0,
+  })),
+  
+  // Path methods
   beginPath: vi.fn(),
   closePath: vi.fn(),
   moveTo: vi.fn(),
   lineTo: vi.fn(),
   arc: vi.fn(),
+  arcTo: vi.fn(),
+  ellipse: vi.fn(),
+  rect: vi.fn(),
+  quadraticCurveTo: vi.fn(),
+  bezierCurveTo: vi.fn(),
+  
+  // Path drawing
   stroke: vi.fn(),
   fill: vi.fn(),
+  clip: vi.fn(),
+  isPointInPath: vi.fn(() => false),
+  isPointInStroke: vi.fn(() => false),
+  
+  // Image methods
+  drawImage: vi.fn(),
+  createImageData: vi.fn((sw: number | ImageData, sh?: number) => ({
+    data: new Uint8ClampedArray(4),
+    width: typeof sw === 'number' ? sw : sw.width,
+    height: typeof sw === 'number' ? (sh || 1) : sw.height,
+    colorSpace: 'srgb' as PredefinedColorSpace,
+  })),
   getImageData: vi.fn(() => ({
     data: new Uint8ClampedArray(4),
     width: 1,
     height: 1,
+    colorSpace: 'srgb' as PredefinedColorSpace,
   })),
   putImageData: vi.fn(),
-  createImageData: vi.fn(() => ({
-    data: new Uint8ClampedArray(4),
-    width: 1,
-    height: 1,
-  })),
-  setTransform: vi.fn(),
-  drawImage: vi.fn(),
-  createPattern: vi.fn(),
+  
+  // Pattern & Gradient
+  createPattern: vi.fn(() => ({} as CanvasPattern)),
   createLinearGradient: vi.fn(() => ({
     addColorStop: vi.fn(),
   })),
   createRadialGradient: vi.fn(() => ({
     addColorStop: vi.fn(),
   })),
+  createConicGradient: vi.fn(() => ({
+    addColorStop: vi.fn(),
+  })),
+  
+  // Line styles
   setLineDash: vi.fn(),
   getLineDash: vi.fn(() => []),
   lineDashOffset: 0,
-})
+  lineJoin: 'miter' as CanvasLineJoin,
+  lineCap: 'butt' as CanvasLineCap,
+  miterLimit: 10,
+  
+  // Shadows
+  shadowBlur: 0,
+  shadowColor: 'rgba(0, 0, 0, 0)',
+  shadowOffsetX: 0,
+  shadowOffsetY: 0,
+  
+  // Filters
+  filter: 'none',
+  
+  // Image smoothing
+  imageSmoothingEnabled: true,
+  imageSmoothingQuality: 'low' as ImageSmoothingQuality,
+  
+  // Text drawing direction
+  direction: 'ltr' as CanvasDirection,
+  
+  // Canvas state
+  getContextAttributes: vi.fn(() => ({ alpha: true })),
+} as CanvasRenderingContext2D)
 
-HTMLCanvasElement.prototype.getContext = vi.fn(function(type) {
-  if (type === '2d') {
-    // Create a new context for each canvas
-    return createMockContext()
+HTMLCanvasElement.prototype.getContext = vi.fn(function(this: HTMLCanvasElement, contextId: string, options?: any) {
+  if (contextId === '2d') {
+    const ctx = createMockContext()
+    // Set the canvas reference
+    ;(ctx as any).canvas = this
+    return ctx
   }
   return null
-})
+}) as any
 
 // Mock Image constructor
 global.Image = vi.fn().mockImplementation(() => {
