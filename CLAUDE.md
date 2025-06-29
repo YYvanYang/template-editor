@@ -633,7 +633,6 @@ const dragAndDrop = useDragAndDropWithAlignment({
 ### 相关文档
 - `docs/alignment-system-design.md` - 对齐系统设计文档
 - `src/features/canvas/README.md` - 详细使用指南
-- `src/features/canvas/examples/` - 示例代码
 
 ## 空间索引优化（2025年1月更新）
 
