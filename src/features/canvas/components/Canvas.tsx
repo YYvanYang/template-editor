@@ -82,8 +82,35 @@ export const Canvas: React.FC<CanvasProps> = ({ unit = 'mm' }) => {
     setOffset(newOffset)
   }, [canvas, setZoom, setOffset])
 
-  // 处理画布拖拽
+  // 用于节流的 ref
+  const dragAnimationFrame = useRef<number | null>(null)
+  
+  // 处理画布拖拽移动 - 实时更新标尺
+  const handleDragMove = useCallback((e: KonvaEventObject<DragEvent>) => {
+    // 取消之前的动画帧
+    if (dragAnimationFrame.current) {
+      cancelAnimationFrame(dragAnimationFrame.current)
+    }
+    
+    // 使用 requestAnimationFrame 节流更新
+    dragAnimationFrame.current = requestAnimationFrame(() => {
+      const stage = e.target
+      setOffset({
+        x: stage.x(),
+        y: stage.y(),
+      })
+    })
+  }, [setOffset])
+  
+  // 处理画布拖拽结束
   const handleDragEnd = useCallback((e: KonvaEventObject<DragEvent>) => {
+    // 清理动画帧
+    if (dragAnimationFrame.current) {
+      cancelAnimationFrame(dragAnimationFrame.current)
+      dragAnimationFrame.current = null
+    }
+    
+    // 确保最终位置准确
     const stage = e.target
     setOffset({
       x: stage.x(),
@@ -106,7 +133,13 @@ export const Canvas: React.FC<CanvasProps> = ({ unit = 'mm' }) => {
     
     updateSize()
     window.addEventListener('resize', updateSize)
-    return () => window.removeEventListener('resize', updateSize)
+    return () => {
+      window.removeEventListener('resize', updateSize)
+      // 清理拖拽动画帧
+      if (dragAnimationFrame.current) {
+        cancelAnimationFrame(dragAnimationFrame.current)
+      }
+    }
   }, [])
 
   // 使用自定义钩子处理事件
@@ -140,6 +173,7 @@ export const Canvas: React.FC<CanvasProps> = ({ unit = 'mm' }) => {
         y={canvas.offset.y}
         draggable
         onWheel={handleWheel}
+        onDragMove={handleDragMove}
         onDragEnd={handleDragEnd}
       >
         <Layer>
