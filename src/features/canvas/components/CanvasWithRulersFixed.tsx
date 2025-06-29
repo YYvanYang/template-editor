@@ -78,12 +78,16 @@ export const CanvasWithRulersFixed: React.FC<CanvasWithRulersFixedProps> = ({
     if (!showRulers) return;
     
     const rect = event.currentTarget.getBoundingClientRect();
-    // 减去标尺厚度，得到在画布坐标系中的位置
-    const x = event.clientX - rect.left - rulerThickness;
-    const y = event.clientY - rect.top - rulerThickness;
+    // 鼠标位置相对于整个容器
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
     
-    setMousePosition({ x, y });
-  }, [showRulers]);
+    // 减去标尺厚度，得到相对于画布的位置
+    const canvasX = x - rulerThickness;
+    const canvasY = y - rulerThickness;
+    
+    setMousePosition({ x: canvasX, y: canvasY });
+  }, [showRulers, rulerThickness]);
 
   // 处理鼠标离开
   const handleMouseLeave = useCallback(() => {
@@ -110,6 +114,8 @@ export const CanvasWithRulersFixed: React.FC<CanvasWithRulersFixedProps> = ({
         position: 'relative',
         backgroundColor: '#f0f0f0',
       }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
     >
       {/* 顶部区域：角落 + 水平标尺 */}
       <div style={{ display: 'flex', flexShrink: 0 }}>
@@ -158,8 +164,6 @@ export const CanvasWithRulersFixed: React.FC<CanvasWithRulersFixedProps> = ({
             position: 'relative',
             overflow: 'hidden',
           }}
-          onMouseMove={handleMouseMove}
-          onMouseLeave={handleMouseLeave}
         >
           <Canvas unit={unit} />
         </div>

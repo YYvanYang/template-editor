@@ -200,6 +200,8 @@ export const RulerCanvas: React.FC<RulerProps> = (props) => {
 
     // 绘制鼠标指示器
     if (mousePosition) {
+      // mousePosition 是相对于画布容器的坐标
+      // 需要转换为标尺上的位置
       const mousePos = orientation === 'horizontal' ? mousePosition.x : mousePosition.y;
       
       // 绘制指示线
@@ -218,14 +220,25 @@ export const RulerCanvas: React.FC<RulerProps> = (props) => {
       ctx.stroke();
 
       // 绘制数值标签
-      // 重要：正确计算鼠标位置对应的单位值
-      // mousePos 是相对于标尺的位置，需要转换为画布上的实际单位值
-      const viewportOffset = orientation === 'horizontal' ? viewport.x : viewport.y;
-      // 从屏幕坐标转换为画布坐标：(屏幕位置 - 视口偏移) / 缩放比例
-      const canvasPixelValue = (mousePos - viewportOffset) / viewport.scale;
+      // mousePos 是相对于画布容器的坐标（已经是相对于画布左上角的位置）
+      // 直接转换为画布坐标系中的像素值
+      const canvasPixelValue = mousePos / viewport.scale;
       // 从像素转换为单位值
       const unitValue = canvasPixelValue / tickParams.unitConfig.toPx;
       const label = `${unitValue.toFixed(1)}${unit}`;
+      
+      // 临时调试
+      if (orientation === 'horizontal') {
+        console.log('Mouse debug:', {
+          mousePos,
+          canvasPixelValue,
+          unitValue,
+          scale: viewport.scale,
+          viewportX: viewport.x,
+          expectedValue: mousePos / 3.7795275591, // 期望值（假设缩放为1）
+          label
+        });
+      }
 
       ctx.fillStyle = '#007bff';
       ctx.fillRect(
