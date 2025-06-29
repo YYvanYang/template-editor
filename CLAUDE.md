@@ -386,35 +386,121 @@ export default defineConfig({
 
 ## 标尺组件实现说明
 
-### 技术选型
-- 使用 `@scena/react-ruler` 作为标尺组件库
-- 原因：成熟稳定，解决了自定义实现中标签消失的问题
+### 技术选型历程
+1. **初始方案**：使用 `@scena/react-ruler` 
+   - 问题：标签消失、坐标对齐困难、与新版本 React 兼容性问题
+2. **最终方案**：自定义 Canvas 实现 (`RulerCanvas.tsx`)
+   - 优势：完全控制渲染、高性能、精确对齐、支持设备像素比
 
-### 标尺配置
+### Canvas 标尺实现要点
+
+#### 1. 坐标系统
 ```typescript
-// 毫米单位配置
-if (unit === 'mm') {
-  zoom = viewport.scale * 3.7795275591; // 1mm = 3.7795275591px
-  unitSize = 10; // 10mm 间隔
-}
+// 关键公式
+画布坐标 = (鼠标位置 - 视口偏移) / 缩放比例
+单位值 = 画布坐标 / 像素每单位
 
-// 厘米单位配置  
-if (unit === 'cm') {
-  zoom = viewport.scale * 37.795275591; // 1cm = 37.795275591px
-  unitSize = 1; // 1cm 间隔
-}
+// 单位转换常量
+const MM_TO_PX = 3.7795275591; // 1mm = 3.7795275591px at 96dpi
 ```
 
-### 关键实现要点
-1. **容器尺寸监听**：使用 ResizeObserver 精确监听容器大小变化
-2. **滚动位置转换**：将像素偏移转换为对应单位（mm/cm）的偏移
-3. **文本格式化**：通过 textFormat 函数显示正确的单位值
-4. **响应式调整**：调用 ruler.resize() 方法处理尺寸变化
+#### 2. 动态刻度间隔
+根据缩放级别自动调整刻度密度，避免过于密集或稀疏：
+```typescript
+// 毫米单位的刻度间隔
+if (pixelsPerMm >= 15) {
+  subMinorInterval = 0.5;  // 显示0.5mm刻度
+  minorInterval = 1;       // 显示1mm刻度
+  majorInterval = 10;      // 10mm为主刻度
+} else if (pixelsPerMm >= 7.5) {
+  minorInterval = 1;
+  majorInterval = 10;
+} // ... 更多级别
+```
 
-### 常见问题
-1. **标尺标签消失**：使用 @scena/react-ruler 替代自定义实现
-2. **刻度显示不全**：设置容器 overflow: visible，确保内容不被截断
-3. **单位转换错误**：正确设置 zoom 和 unit 参数，参考官方文档
+#### 3. 鼠标事件处理
+```typescript
+// 重要：在整个容器监听鼠标事件，而不是只在画布区域
+<div onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave}>
+  {/* 标尺和画布组件 */}
+</div>
+
+// 正确计算鼠标位置
+const canvasX = event.clientX - rect.left - rulerThickness;
+const canvasY = event.clientY - rect.top - rulerThickness;
+```
+
+#### 4. 高清屏支持
+```typescript
+// 设置画布尺寸（考虑设备像素比）
+canvas.width = canvasWidth * devicePixelRatio;
+canvas.height = canvasHeight * devicePixelRatio;
+canvas.style.width = `${canvasWidth}px`;
+canvas.style.height = `${canvasHeight}px`;
+
+// 缩放上下文
+ctx.scale(devicePixelRatio, devicePixelRatio);
+```
+
+### 网格系统实现
+
+#### 1. 网格与标尺对齐
+- 网格使用与标尺相同的单位系统（毫米）
+- 根据缩放级别动态调整网格间隔
+- 默认显示5mm网格，提供更好的视觉效果
+
+#### 2. 网格间隔配置
+```typescript
+// 根据缩放调整网格密度
+if (pixelsPerMm < 3.5) {
+  gridInterval = 10;  // 10mm 网格
+} else if (pixelsPerMm < 7.5) {
+  gridInterval = 5;   // 5mm 网格（默认）
+} else if (pixelsPerMm < 15) {
+  gridInterval = 2;   // 2mm 网格
+} // ... 更多级别
+```
+
+### 常见问题及解决方案
+
+#### 1. 坐标对齐问题
+- **问题**：鼠标位置与标尺显示数值不匹配
+- **原因**：坐标系统混淆、视口偏移计算错误
+- **解决**：
+  - 明确区分容器坐标、画布坐标、标尺坐标
+  - 正确处理标尺厚度偏移
+  - 在整个容器而非画布区域监听鼠标事件
+
+#### 2. 垂直标尺显示问题
+- **问题**：文字被遮挡、标签显示不全
+- **原因**：标尺宽度不足、标签位置计算错误
+- **解决**：
+  - 增加标尺厚度到30px
+  - 垂直标尺标签：宽14px，高40px（考虑旋转）
+  - 调整文字位置，避免边缘裁剪
+
+#### 3. 刻度密度问题
+- **问题**：缩放时刻度过密或过疏
+- **原因**：固定刻度间隔不适应动态缩放
+- **解决**：根据像素/单位比例动态调整刻度间隔
+
+#### 4. 性能优化
+- 使用 `requestAnimationFrame` 优化渲染
+- 跳过不可见的刻度绘制
+- 使用 Canvas 而非 DOM 元素提升性能
+
+### 调试工具
+项目提供了多个调试工具帮助开发和问题排查：
+- `?debug=coord-test` - 坐标系统测试工具
+- `?debug=alignment-debug` - 标尺对齐调试工具
+- `?debug=enhanced` - 增强调试界面
+
+### 实施经验总结
+1. **先理解坐标系统**：清晰区分各个坐标系之间的转换关系
+2. **渐进式开发**：先实现基础功能，再逐步优化细节
+3. **充分测试**：不同缩放级别、不同单位、拖动画布等场景
+4. **性能优先**：使用 Canvas 而非 DOM，避免频繁重绘
+5. **用户体验**：合理的默认值、平滑的交互反馈
 
 ## 专业对齐辅助线系统
 
