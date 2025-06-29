@@ -115,17 +115,21 @@ export const RulerCanvas: React.FC<RulerProps> = (props) => {
     ctx.textBaseline = 'top';
 
     // 计算可见范围
-    const startPixel = orientation === 'horizontal' ? -viewport.x : -viewport.y;
-    const endPixel = orientation === 'horizontal' 
-      ? canvasWidth - viewport.x 
-      : canvasHeight - viewport.y;
+    // viewport.x/y 是画布在屏幕上的偏移（正值表示画布向右/下移动）
+    // 所以当画布向右移动时，标尺应该显示更小的值（负偏移）
+    const viewportOffset = orientation === 'horizontal' ? viewport.x : viewport.y;
+    const startPixel = -viewportOffset;
+    const endPixel = (orientation === 'horizontal' ? canvasWidth : canvasHeight) - viewportOffset;
     const startUnit = startPixel / (tickParams.unitConfig.toPx * viewport.scale);
     const endUnit = endPixel / (tickParams.unitConfig.toPx * viewport.scale);
 
     // 绘制刻度线和标签
     const drawTick = (value: number, height: number, drawLabel: boolean) => {
-      const pixelPos = value * tickParams.unitConfig.toPx * viewport.scale + 
-        (orientation === 'horizontal' ? viewport.x : viewport.y);
+      // 将单位值转换为屏幕像素位置
+      // value: 单位值（如 10mm）
+      // 公式：单位值 * 像素/单位 * 缩放 + 视口偏移
+      const viewportOffset = orientation === 'horizontal' ? viewport.x : viewport.y;
+      const pixelPos = value * tickParams.unitConfig.toPx * viewport.scale + viewportOffset;
       
       // 跳过不可见的刻度
       const maxPos = orientation === 'horizontal' ? canvasWidth : canvasHeight;
@@ -155,7 +159,7 @@ export const RulerCanvas: React.FC<RulerProps> = (props) => {
         } else {
           // 垂直标尺的文字需要旋转
           ctx.save();
-          ctx.translate(2, pixelPos);
+          ctx.translate(10, pixelPos); // 增加左边距，避免被遮挡
           ctx.rotate(-Math.PI / 2);
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
@@ -214,9 +218,29 @@ export const RulerCanvas: React.FC<RulerProps> = (props) => {
       ctx.stroke();
 
       // 绘制数值标签
-      const pixelValue = (mousePos - (orientation === 'horizontal' ? viewport.x : viewport.y)) / viewport.scale;
-      const unitValue = pixelValue / tickParams.unitConfig.toPx;
+      // 重要：正确计算鼠标位置对应的单位值
+      // mousePos 是相对于标尺的位置，需要转换为画布上的实际单位值
+      const viewportOffset = orientation === 'horizontal' ? viewport.x : viewport.y;
+      // 从屏幕坐标转换为画布坐标：(屏幕位置 - 视口偏移) / 缩放比例
+      const canvasPixelValue = (mousePos - viewportOffset) / viewport.scale;
+      // 从像素转换为单位值
+      const unitValue = canvasPixelValue / tickParams.unitConfig.toPx;
       const label = `${unitValue.toFixed(1)}${unit}`;
+      
+      // 调试日志
+      console.log(`${orientation} ruler mouse:`, {
+        mousePos,
+        viewportOffset,
+        canvasPixelValue,
+        unitValue,
+        scale: viewport.scale,
+        toPx: tickParams.unitConfig.toPx,
+        label,
+        // 添加更多调试信息
+        tickStart: minorStart,
+        tickEnd: endUnit,
+        canvasSize: orientation === 'horizontal' ? canvasSize?.width : canvasSize?.height
+      });
 
       ctx.fillStyle = '#007bff';
       ctx.fillRect(

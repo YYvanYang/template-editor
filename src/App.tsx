@@ -4,6 +4,9 @@ import { RulerDebug } from '@/debug/RulerDebug'
 import { CanvasRulerDebug } from '@/debug/CanvasRulerDebug'
 import { RulerTest } from '@/debug/RulerTest'
 import { SimpleRulerTest } from '@/debug/SimpleRulerTest'
+import { RulerAlignmentDebug } from '@/debug/RulerAlignmentDebug'
+import { RulerAlignmentTest } from '@/debug/RulerAlignmentTest'
+import { EnhancedRulerDebug } from '@/debug/EnhancedRulerDebug'
 
 function App() {
   // 临时添加调试模式
@@ -11,6 +14,9 @@ function App() {
   const isCanvasDebugMode = window.location.search.includes('debug=canvas-ruler');
   const isRulerTestMode = window.location.search.includes('debug=ruler-test');
   const isSimpleRulerTestMode = window.location.search.includes('debug=simple-ruler');
+  const isAlignmentTestMode = window.location.search.includes('debug=alignment');
+  const isEnhancedDebugMode = window.location.search.includes('debug=enhanced');
+  const isAlignmentDebugMode = window.location.search.includes('debug=alignment-debug');
   
   if (isDebugMode) {
     return <RulerDebug />;
@@ -27,6 +33,19 @@ function App() {
   if (isSimpleRulerTestMode) {
     return <SimpleRulerTest />;
   }
+  
+  if (isAlignmentTestMode) {
+    return <RulerAlignmentTest />;
+  }
+  
+  if (isEnhancedDebugMode) {
+    return <EnhancedRulerDebug />;
+  }
+  
+  if (isAlignmentDebugMode) {
+    return <RulerAlignmentDebug />;
+  }
+  
   return (
     <>
       {/* React 19 原生文档元数据支持 */}
