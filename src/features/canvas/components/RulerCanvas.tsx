@@ -231,12 +231,12 @@ export const RulerCanvas: React.FC<RulerProps> = (props) => {
 
       // 调整标签背景的位置和大小
       const labelPadding = 2;
-      const labelWidth = 40;
-      const labelHeight = 14;
       
       ctx.fillStyle = '#007bff';
       if (orientation === 'horizontal') {
         // 水平标尺：标签在底部
+        const labelWidth = 40;
+        const labelHeight = 14;
         ctx.fillRect(
           mousePos - labelWidth/2,
           canvasHeight - labelHeight - labelPadding,
@@ -244,7 +244,9 @@ export const RulerCanvas: React.FC<RulerProps> = (props) => {
           labelHeight
         );
       } else {
-        // 垂直标尺：标签在右侧
+        // 垂直标尺：标签在右侧（旋转90度，所以宽高要交换）
+        const labelWidth = 14;  // 这是垂直方向的宽度
+        const labelHeight = 40; // 这是水平方向的长度
         ctx.fillRect(
           canvasWidth - labelWidth - labelPadding,
           mousePos - labelHeight/2,
@@ -260,9 +262,11 @@ export const RulerCanvas: React.FC<RulerProps> = (props) => {
       
       if (orientation === 'horizontal') {
         // 水平标尺：文字在标签中央
+        const labelHeight = 14;
         ctx.fillText(label, mousePos, canvasHeight - labelHeight/2 - labelPadding);
       } else {
         // 垂直标尺：旋转文字
+        const labelWidth = 14;
         ctx.save();
         ctx.translate(canvasWidth - labelWidth/2 - labelPadding, mousePos);
         ctx.rotate(-Math.PI / 2);
