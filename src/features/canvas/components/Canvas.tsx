@@ -4,6 +4,9 @@ import type { KonvaEventObject } from 'konva/lib/Node'
 import { useEditorStore } from '@/features/editor/stores/editor.store'
 import { Grid } from './Grid'
 import { useCanvasEvents } from '../hooks/useCanvasEvents'
+import { useAlignment } from '../hooks/useAlignment'
+import { AlignmentGuidesKonva } from './AlignmentGuidesKonva'
+import { ElementsRenderer } from './ElementRenderer'
 
 const ZOOM_SPEED = 0.002
 const MIN_ZOOM = 0.1
@@ -22,6 +25,19 @@ export const Canvas: React.FC = () => {
     setZoom,
     setOffset,
   } = useEditorStore()
+
+  // 初始化对齐系统
+  const alignment = useAlignment({
+    config: {
+      enabled: true,
+      threshold: 5,
+      snapToGrid: canvas.snapEnabled,
+      gridSize: 10,
+      snapToElements: true,
+      showCenterGuides: true,
+      showEdgeGuides: true,
+    }
+  })
 
   // 处理鼠标滚轮缩放
   const handleWheel = useCallback((e: KonvaEventObject<WheelEvent>) => {
@@ -88,6 +104,22 @@ export const Canvas: React.FC = () => {
   // 使用自定义钩子处理事件
   useCanvasEvents(stageRef)
 
+  // 处理辅助线点击
+  const handleGuideClick = useCallback((guideId: string) => {
+    console.log('Guide clicked:', guideId)
+  }, [])
+
+  // 处理辅助线双击（删除）
+  const handleGuideDoubleClick = useCallback((guideId: string) => {
+    alignment.removeManualGuide(guideId)
+  }, [alignment])
+
+  // 处理辅助线拖拽
+  const handleGuideDrag = useCallback((guideId: string, position: number) => {
+    // 更新辅助线位置
+    console.log('Guide dragged:', guideId, position)
+  }, [])
+
   return (
     <div ref={containerRef} className="relative w-full h-full overflow-hidden" style={{ backgroundColor: '#f5f5f5' }}>
       <Stage
@@ -136,7 +168,28 @@ export const Canvas: React.FC = () => {
           )}
           
           {/* 渲染元素 */}
-          {/* TODO: 实现元素渲染 */}
+          <ElementsRenderer />
+          
+          {/* 对齐辅助线 */}
+          <AlignmentGuidesKonva
+            guides={alignment.staticGuides}
+            dynamicGuides={alignment.dynamicGuides}
+            viewport={{
+              scale: canvas.zoom,
+              x: canvas.offset.x,
+              y: canvas.offset.y,
+              width: stageSize.width,
+              height: stageSize.height,
+            }}
+            canvasSize={{
+              width: template.size.width * MM_TO_PX,
+              height: template.size.height * MM_TO_PX,
+            }}
+            onGuideClick={handleGuideClick}
+            onGuideDoubleClick={handleGuideDoubleClick}
+            onGuideDrag={handleGuideDrag}
+            showMeasurements={true}
+          />
         </Layer>
       </Stage>
     </div>
