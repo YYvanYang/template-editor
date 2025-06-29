@@ -1,8 +1,9 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Canvas } from './Canvas';
-import { Ruler } from './Ruler';
+import { RulerFixed as Ruler } from './RulerFixed';
 import { RulerCorner } from './RulerCorner';
 import { useEditorStore } from '@/features/editor/stores/editor.store';
+import { RulerDebugInfo } from '@/debug/RulerDebugInfo';
 
 interface CanvasWithRulersProps {
   showRulers?: boolean;
@@ -137,6 +138,8 @@ export const CanvasWithRulers: React.FC<CanvasWithRulersProps> = ({
           <Canvas />
         </div>
       </div>
+      {/* 调试信息 */}
+      <RulerDebugInfo />
     </div>
   );
 };

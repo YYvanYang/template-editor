@@ -81,7 +81,17 @@ export function calculateTicks(params: CalculateTicksParams): RulerTick[] {
   let step = minorInterval;
   const maxTicks = length / minTickSpacing;
   const estimatedTicks = (endValue - startTick) / minorInterval;
-  if (estimatedTicks > maxTicks) {
+  
+  // 根据单位和缩放级别决定是否显示次刻度
+  // 对于毫米单位，当缩放较小时，跳过1mm刻度，只显示5mm或10mm
+  if (unit === 'mm') {
+    if (scale < 0.5) {
+      step = majorInterval; // 只显示10mm刻度
+    } else if (scale < 1) {
+      step = 5; // 显示5mm刻度
+    }
+    // scale >= 1 时显示所有1mm刻度
+  } else if (estimatedTicks > maxTicks) {
     step = minorInterval * Math.ceil(estimatedTicks / maxTicks);
   }
   
@@ -98,7 +108,16 @@ export function calculateTicks(params: CalculateTicksParams): RulerTick[] {
     
     // 格式化标签
     let label: string | undefined;
-    if (isMajor) {
+    if (unit === 'mm') {
+      // 毫米单位：根据缩放级别决定显示哪些标签
+      if (scale < 0.5 && isMajor) {
+        label = formatLabel(value, unit); // 只在10mm倍数显示
+      } else if (scale < 1 && value % 5 === 0) {
+        label = formatLabel(value, unit); // 在5mm倍数显示
+      } else if (scale >= 1 && value % 10 === 0) {
+        label = formatLabel(value, unit); // 在10mm倍数显示
+      }
+    } else if (isMajor) {
       label = formatLabel(value, unit);
     }
     
