@@ -63,6 +63,9 @@ describe('BarcodeElementRenderer', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     
+    // Spy on console.error to suppress error logs in tests
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    
     // Setup barcode generator mocks
     vi.mocked(barcodeGenerator.generateBarcode).mockResolvedValue(undefined);
     vi.mocked(barcodeGenerator.isBarcodeTypeSupported).mockReturnValue(true);
@@ -405,6 +408,9 @@ describe('BarcodePreview', () => {
   
   beforeEach(() => {
     vi.clearAllMocks();
+    
+    // Spy on console.error to suppress error logs in tests
+    vi.spyOn(console, 'error').mockImplementation(() => {});
     
     // Setup barcode generator mocks
     vi.mocked(barcodeGenerator.generateBarcode).mockResolvedValue(undefined);
