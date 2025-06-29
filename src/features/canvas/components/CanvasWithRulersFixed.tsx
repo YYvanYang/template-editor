@@ -97,7 +97,7 @@ export const CanvasWithRulersFixed: React.FC<CanvasWithRulersFixedProps> = ({
   }, [unit]);
 
   if (!showRulers) {
-    return <Canvas />;
+    return <Canvas unit={unit} />;
   }
 
   return (
@@ -161,7 +161,7 @@ export const CanvasWithRulersFixed: React.FC<CanvasWithRulersFixedProps> = ({
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
         >
-          <Canvas />
+          <Canvas unit={unit} />
         </div>
       </div>
       

@@ -15,7 +15,11 @@ const MIN_ZOOM = 0.1
 const MAX_ZOOM = 5
 const MM_TO_PX = 3.7795275591 // 1mm = 3.7795275591px at 96dpi
 
-export const Canvas: React.FC = () => {
+interface CanvasProps {
+  unit?: 'mm' | 'cm' | 'px'
+}
+
+export const Canvas: React.FC<CanvasProps> = ({ unit = 'mm' }) => {
   const stageRef = useRef<any>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const [performanceMonitor] = useState(() => new PerformanceMonitor())
@@ -167,6 +171,7 @@ export const Canvas: React.FC = () => {
                   height: template.size.height * MM_TO_PX,
                 }} 
                 offset={{ x: 0, y: 0 }}
+                unit={unit}
               />
             </Group>
           )}
