@@ -57,7 +57,9 @@ src/
 - `pnpm dev` - 启动开发服务器
 - `pnpm test` - 运行测试
 - `pnpm test:ui` - 启动测试UI
-- `pnpm build` - 构建生产版本
+- `pnpm build` - 快速构建生产版本（跳过类型检查）
+- `pnpm build:check` - 完整构建生产版本（包含类型检查）
+- `pnpm typecheck` - 仅运行 TypeScript 类型检查
 - `pnpm lint` - 运行代码检查
 
 ## 当前进度
