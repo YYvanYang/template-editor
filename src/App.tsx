@@ -1,12 +1,16 @@
 import { Layout } from '@/shared/components/Layout'
-import { CanvasWithRulers, CanvasWithCanvasRulers, CanvasWithScenaRulers, CanvasWithGuides } from '@/features/canvas/components'
+import { CanvasWithRulers } from '@/features/canvas/components'
 import { RulerDebug } from '@/debug/RulerDebug'
 import { CanvasRulerDebug } from '@/debug/CanvasRulerDebug'
+import { RulerTest } from '@/debug/RulerTest'
+import { SimpleRulerTest } from '@/debug/SimpleRulerTest'
 
 function App() {
   // 临时添加调试模式
   const isDebugMode = window.location.search.includes('debug=ruler');
   const isCanvasDebugMode = window.location.search.includes('debug=canvas-ruler');
+  const isRulerTestMode = window.location.search.includes('debug=ruler-test');
+  const isSimpleRulerTestMode = window.location.search.includes('debug=simple-ruler');
   
   if (isDebugMode) {
     return <RulerDebug />;
@@ -14,6 +18,14 @@ function App() {
   
   if (isCanvasDebugMode) {
     return <CanvasRulerDebug />;
+  }
+  
+  if (isRulerTestMode) {
+    return <RulerTest />;
+  }
+  
+  if (isSimpleRulerTestMode) {
+    return <SimpleRulerTest />;
   }
   return (
     <>
@@ -29,8 +41,8 @@ function App() {
         </aside>
         
         {/* 中间画布区域 */}
-        <div className="flex-1">
-          <CanvasWithScenaRulers showRulers={true} />
+        <div className="flex-1 h-full">
+          <CanvasWithRulers showRulers={true} unit="mm" />
         </div>
         
         {/* 右侧属性面板 */}

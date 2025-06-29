@@ -40,6 +40,7 @@ export const CanvasWithRulers: React.FC<CanvasWithRulersProps> = ({
     const updateSize = () => {
       if (containerRef.current) {
         const rect = containerRef.current.getBoundingClientRect();
+        console.log('Container rect:', rect);
         setContainerSize({
           width: rect.width - (showRulers ? rulerThickness : 0),
           height: rect.height - (showRulers ? rulerThickness : 0),

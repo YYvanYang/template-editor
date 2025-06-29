@@ -21,10 +21,10 @@ export const ElementRenderer: React.FC<ElementRendererProps> = ({
   const nodeRef = React.useRef<any>(null)
   const transformerRef = React.useRef<any>(null)
   
-  const { updateElement } = useEditorStore()
+  const { updateElement, canvas } = useEditorStore()
   const dragAndDrop = useDragAndDropWithAlignment({
-    enableAlignment: true,
-    enableMagneticSnap: true,
+    enableAlignment: canvas.alignmentEnabled,
+    enableMagneticSnap: canvas.magneticSnap,
   })
 
   // 更新 Transformer
@@ -245,29 +245,28 @@ export const ElementRenderer: React.FC<ElementRendererProps> = ({
  * 渲染所有元素的容器组件
  */
 export const ElementsRenderer: React.FC = () => {
-  const { elements, selectedElementIds, selectElement, selectElements } = useEditorStore()
+  const { elements, selectedIds, selectElement, deselectElement, clearSelection } = useEditorStore()
 
   const handleSelect = React.useCallback((id: string, multi: boolean) => {
     if (multi) {
-      const newSelection = new Set(selectedElementIds)
-      if (newSelection.has(id)) {
-        newSelection.delete(id)
+      if (selectedIds.has(id)) {
+        deselectElement(id)
       } else {
-        newSelection.add(id)
+        selectElement(id)
       }
-      selectElements(newSelection)
     } else {
+      clearSelection()
       selectElement(id)
     }
-  }, [selectedElementIds, selectElement, selectElements])
+  }, [selectedIds, selectElement, deselectElement, clearSelection])
 
   // 处理画布点击（取消选择）
   const handleStageClick = React.useCallback((e: any) => {
     // 检查是否点击在空白处
     if (e.target === e.target.getStage()) {
-      selectElements(new Set())
+      clearSelection()
     }
-  }, [selectElements])
+  }, [clearSelection])
 
   return (
     <Group onClick={handleStageClick}>
@@ -275,7 +274,7 @@ export const ElementsRenderer: React.FC = () => {
         <ElementRenderer
           key={element.id}
           element={element}
-          isSelected={selectedElementIds.has(element.id)}
+          isSelected={selectedIds.has(element.id)}
           onSelect={handleSelect}
         />
       ))}

@@ -4,6 +4,14 @@ export interface CanvasState {
   offset: { x: number; y: number }
   gridEnabled: boolean
   snapEnabled: boolean
+  // 对齐系统配置
+  alignmentEnabled: boolean
+  alignmentThreshold: number
+  showAlignmentGuides: boolean
+  magneticSnap: boolean
+  magneticCurve: 'linear' | 'quadratic' | 'cubic' | 'exponential'
+  showMeasurements: boolean
+  showPerformanceMonitor: boolean
 }
 
 // 基础元素接口

@@ -30,6 +30,12 @@ import {
   Settings,
   Download,
   Eye,
+  Grid3x3,
+  Magnet,
+  Minus,
+  Ruler,
+  Activity,
+  ScanLine,
 } from 'lucide-react';
 
 import { ToolType, ToolGroup } from '../types/toolbar.types';
@@ -226,6 +232,50 @@ export const defaultToolGroups: ToolGroup[] = [
         label: '100%',
         tooltip: '实际大小 (Ctrl+1)',
         shortcut: 'Ctrl+1',
+        separator: true,
+      },
+    ],
+  },
+  {
+    name: '对齐辅助',
+    tools: [
+      {
+        type: ToolType.TOGGLE_SNAP,
+        icon: Grid3x3,
+        label: '网格吸附',
+        tooltip: '切换网格吸附 (G)',
+        shortcut: 'G',
+      },
+      {
+        type: ToolType.TOGGLE_GUIDES,
+        icon: Minus,
+        label: '对齐线',
+        tooltip: '显示/隐藏对齐线 (Ctrl+;)',
+        shortcut: 'Ctrl+;',
+      },
+      {
+        type: ToolType.TOGGLE_MAGNETIC,
+        icon: Magnet,
+        label: '磁力吸附',
+        tooltip: '切换磁力吸附',
+      },
+      {
+        type: ToolType.TOGGLE_MEASUREMENTS,
+        icon: Ruler,
+        label: '测量',
+        tooltip: '显示/隐藏测量值',
+      },
+      {
+        type: ToolType.TOGGLE_ALIGNMENT,
+        icon: ScanLine,
+        label: '对齐系统',
+        tooltip: '启用/禁用对齐系统',
+      },
+      {
+        type: ToolType.TOGGLE_PERFORMANCE,
+        icon: Activity,
+        label: '性能监控',
+        tooltip: '显示/隐藏性能监控',
         separator: true,
       },
     ],

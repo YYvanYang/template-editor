@@ -7,7 +7,19 @@ import { useEditorStore } from '@/features/editor/stores/editor.store';
  * Hook to handle keyboard shortcuts for toolbar tools
  */
 export const useKeyboardShortcuts = () => {
-  const { activeTool, setActiveTool, undo, redo, deleteSelectedElements, selectedIds, canUndo, canRedo } = useEditorStore();
+  const { 
+    activeTool, 
+    setActiveTool, 
+    undo, 
+    redo, 
+    deleteSelectedElements, 
+    selectedIds, 
+    canUndo, 
+    canRedo,
+    toggleSnap,
+    toggleAlignmentGuides,
+    togglePerformanceMonitor,
+  } = useEditorStore();
   
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
     // 忽略在输入框中的快捷键
@@ -90,6 +102,25 @@ export const useKeyboardShortcuts = () => {
       return;
     }
 
+    // 对齐系统快捷键
+    if (key === 'g' && !ctrl && !shift && !alt) {
+      event.preventDefault();
+      toggleSnap();
+      return;
+    }
+
+    if (ctrl && key === ';') {
+      event.preventDefault();
+      toggleAlignmentGuides();
+      return;
+    }
+
+    if (ctrl && shift && key === 'p') {
+      event.preventDefault();
+      togglePerformanceMonitor();
+      return;
+    }
+
     // 获取工具快捷键映射
     const shortcutMap = getShortcutMap();
     
@@ -99,7 +130,8 @@ export const useKeyboardShortcuts = () => {
       event.preventDefault();
       setActiveTool(toolType);
     }
-  }, [activeTool, setActiveTool, undo, redo, deleteSelectedElements, selectedIds, canUndo, canRedo]);
+  }, [activeTool, setActiveTool, undo, redo, deleteSelectedElements, selectedIds, canUndo, canRedo, 
+      toggleSnap, toggleAlignmentGuides, togglePerformanceMonitor]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);

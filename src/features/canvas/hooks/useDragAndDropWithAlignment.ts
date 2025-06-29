@@ -34,9 +34,8 @@ export function useDragAndDropWithAlignment(options: UseDragAndDropWithAlignment
   
   const {
     elements,
-    selectedElementIds,
-    updateElements,
-    addHistoryEntry,
+    selectedIds,
+    updateElement,
     canvas,
   } = useEditorStore()
   
@@ -92,10 +91,10 @@ export function useDragAndDropWithAlignment(options: UseDragAndDropWithAlignment
   const startDrag = useCallback(
     (event: MouseEvent | React.MouseEvent, elementId?: string) => {
       const draggedIds = elementId
-        ? selectedElementIds.has(elementId)
-          ? selectedElementIds
+        ? selectedIds.has(elementId)
+          ? selectedIds
           : new Set([elementId])
-        : selectedElementIds
+        : selectedIds
       
       if (draggedIds.size === 0) return
       
@@ -130,7 +129,7 @@ export function useDragAndDropWithAlignment(options: UseDragAndDropWithAlignment
       // Prevent text selection during drag
       event.preventDefault()
     },
-    [selectedElementIds, elements, onDragStart, enableAlignment, alignment]
+    [selectedIds, elements, onDragStart, enableAlignment, alignment]
   )
   
   // Handle drag move
@@ -228,9 +227,10 @@ export function useDragAndDropWithAlignment(options: UseDragAndDropWithAlignment
         })
       }
       
-      if (updates.length > 0) {
-        updateElements(updates)
-      }
+      // 更新元素位置
+      updates.forEach(({ id, position }) => {
+        updateElement(id, { position })
+      })
       
       setDragState((prev) => ({
         ...prev,
@@ -239,7 +239,7 @@ export function useDragAndDropWithAlignment(options: UseDragAndDropWithAlignment
       
       onDragMove?.(deltaX, deltaY)
     },
-    [elements, updateElements, onDragMove, enableAlignment, enableMagneticSnap, alignment]
+    [elements, updateElement, onDragMove, enableAlignment, enableMagneticSnap, alignment]
   )
   
   // End dragging
@@ -255,10 +255,7 @@ export function useDragAndDropWithAlignment(options: UseDragAndDropWithAlignment
       alignment.endDragging()
     }
     
-    // Add to history if elements were moved
-    if (deltaX !== 0 || deltaY !== 0) {
-      addHistoryEntry()
-    }
+    // History is automatically handled by the store when updating elements
     
     onDragEnd?.(currentDragState.draggedElementIds, deltaX, deltaY)
     
@@ -271,7 +268,7 @@ export function useDragAndDropWithAlignment(options: UseDragAndDropWithAlignment
     })
     
     initialPositionsRef.current.clear()
-  }, [addHistoryEntry, onDragEnd, enableAlignment, alignment])
+  }, [onDragEnd, enableAlignment, alignment])
   
   // Cancel dragging
   const cancelDrag = useCallback(() => {
@@ -293,9 +290,10 @@ export function useDragAndDropWithAlignment(options: UseDragAndDropWithAlignment
       }
     })
     
-    if (updates.length > 0) {
-      updateElements(updates)
-    }
+    // 恢复初始位置
+    updates.forEach(({ id, position }) => {
+      updateElement(id, { position })
+    })
     
     setDragState({
       isDragging: false,
@@ -306,7 +304,7 @@ export function useDragAndDropWithAlignment(options: UseDragAndDropWithAlignment
     })
     
     initialPositionsRef.current.clear()
-  }, [updateElements, enableAlignment, alignment])
+  }, [updateElement, enableAlignment, alignment])
   
   // Get drag offset for preview
   const getDragOffset = useCallback((): { x: number; y: number } => {

@@ -1,6 +1,6 @@
 import React, { useMemo, useCallback } from 'react';
 import type { RulerProps } from '../types/ruler.types';
-import { DEFAULT_RULER_CONFIG } from '../types/ruler.types';
+import { DEFAULT_RULER_CONFIG, UNIT_CONVERSIONS } from '../types/ruler.types';
 import { calculateTicks, getMouseValue, formatLabel } from '../utils/ruler.utils';
 
 /**
@@ -26,21 +26,25 @@ export const Ruler: React.FC<RulerProps> = (props) => {
   } = props;
 
   // 计算实际的缩放和偏移
-  const actualScale = viewport.scale * scale;
+  // 对于毫米单位，需要乘以转换系数
+  const unitScale = unit === 'mm' ? UNIT_CONVERSIONS.mm.toPx : 
+                   unit === 'cm' ? UNIT_CONVERSIONS.cm.toPx : 1;
+  const actualScale = viewport.scale * scale * unitScale;
   const actualOffset = orientation === 'horizontal' 
     ? viewport.x + offset 
     : viewport.y + offset;
 
   // 计算刻度
   const ticks = useMemo(() => {
-    return calculateTicks({
+    const result = calculateTicks({
       length,
       scale: actualScale,
       offset: actualOffset,
       unit,
       minTickSpacing: 5,
     });
-  }, [length, actualScale, actualOffset, unit]);
+    return result;
+  }, [length, actualScale, actualOffset, unit, orientation]);
 
   // 处理点击事件
   const handleClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {

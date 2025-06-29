@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useEffect } from 'react'
+import React, { useRef, useCallback, useEffect, useState } from 'react'
 import { Stage, Layer, Rect, Group } from 'react-konva'
 import type { KonvaEventObject } from 'konva/lib/Node'
 import { useEditorStore } from '@/features/editor/stores/editor.store'
@@ -7,6 +7,8 @@ import { useCanvasEvents } from '../hooks/useCanvasEvents'
 import { useAlignment } from '../hooks/useAlignment'
 import { AlignmentGuidesKonva } from './AlignmentGuidesKonva'
 import { ElementsRenderer } from './ElementRenderer'
+import { PerformancePanel } from './PerformancePanel'
+import { PerformanceMonitor } from '../utils/performance-monitor'
 
 const ZOOM_SPEED = 0.002
 const MIN_ZOOM = 0.1
@@ -16,6 +18,7 @@ const MM_TO_PX = 3.7795275591 // 1mm = 3.7795275591px at 96dpi
 export const Canvas: React.FC = () => {
   const stageRef = useRef<any>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  const [performanceMonitor] = useState(() => new PerformanceMonitor())
   
   const {
     canvas,
@@ -26,17 +29,18 @@ export const Canvas: React.FC = () => {
     setOffset,
   } = useEditorStore()
 
-  // 初始化对齐系统
+  // 初始化对齐系统，使用 store 中的配置
   const alignment = useAlignment({
     config: {
-      enabled: true,
-      threshold: 5,
+      enabled: canvas.alignmentEnabled,
+      threshold: canvas.alignmentThreshold,
       snapToGrid: canvas.snapEnabled,
       gridSize: 10,
       snapToElements: true,
       showCenterGuides: true,
       showEdgeGuides: true,
-    }
+    },
+    performanceMonitor,
   })
 
   // 处理鼠标滚轮缩放
@@ -171,27 +175,38 @@ export const Canvas: React.FC = () => {
           <ElementsRenderer />
           
           {/* 对齐辅助线 */}
-          <AlignmentGuidesKonva
-            guides={alignment.staticGuides}
-            dynamicGuides={alignment.dynamicGuides}
-            viewport={{
-              scale: canvas.zoom,
-              x: canvas.offset.x,
-              y: canvas.offset.y,
-              width: stageSize.width,
-              height: stageSize.height,
-            }}
-            canvasSize={{
-              width: template.size.width * MM_TO_PX,
-              height: template.size.height * MM_TO_PX,
-            }}
-            onGuideClick={handleGuideClick}
-            onGuideDoubleClick={handleGuideDoubleClick}
-            onGuideDrag={handleGuideDrag}
-            showMeasurements={true}
-          />
+          {canvas.showAlignmentGuides && (
+            <AlignmentGuidesKonva
+              guides={alignment.staticGuides}
+              dynamicGuides={alignment.dynamicGuides}
+              viewport={{
+                scale: canvas.zoom,
+                x: canvas.offset.x,
+                y: canvas.offset.y,
+                width: stageSize.width,
+                height: stageSize.height,
+              }}
+              canvasSize={{
+                width: template.size.width * MM_TO_PX,
+                height: template.size.height * MM_TO_PX,
+              }}
+              onGuideClick={handleGuideClick}
+              onGuideDoubleClick={handleGuideDoubleClick}
+              onGuideDrag={handleGuideDrag}
+              showMeasurements={canvas.showMeasurements}
+            />
+          )}
         </Layer>
       </Stage>
+      
+      {/* 性能监控面板 */}
+      {canvas.showPerformanceMonitor && (
+        <PerformancePanel
+          monitor={performanceMonitor}
+          position="bottom-right"
+          expanded={false}
+        />
+      )}
     </div>
   )
 }

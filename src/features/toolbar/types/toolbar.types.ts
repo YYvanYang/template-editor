@@ -48,6 +48,14 @@ export enum ToolType {
   SETTINGS = 'settings',
   EXPORT = 'export',
   PREVIEW = 'preview',
+  
+  // 对齐系统控制
+  TOGGLE_ALIGNMENT = 'toggle-alignment',
+  TOGGLE_SNAP = 'toggle-snap',
+  TOGGLE_GUIDES = 'toggle-guides',
+  TOGGLE_MAGNETIC = 'toggle-magnetic',
+  TOGGLE_MEASUREMENTS = 'toggle-measurements',
+  TOGGLE_PERFORMANCE = 'toggle-performance',
 }
 
 /**

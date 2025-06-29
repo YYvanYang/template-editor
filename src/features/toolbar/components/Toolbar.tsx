@@ -24,6 +24,13 @@ export const Toolbar: React.FC<ToolbarProps> = ({ className, onToolChange }) => 
     canRedo,
     deleteSelectedElements,
     selectedIds,
+    canvas,
+    toggleSnap,
+    toggleAlignment,
+    toggleAlignmentGuides,
+    toggleMagneticSnap,
+    toggleMeasurements,
+    togglePerformanceMonitor,
   } = useEditorStore();
   
   // 启用键盘快捷键
@@ -51,11 +58,31 @@ export const Toolbar: React.FC<ToolbarProps> = ({ className, onToolChange }) => 
         setActiveTool(tool.type);
         onToolChange?.(tool.type);
         break;
+      case ToolType.TOGGLE_SNAP:
+        toggleSnap();
+        break;
+      case ToolType.TOGGLE_ALIGNMENT:
+        toggleAlignment();
+        break;
+      case ToolType.TOGGLE_GUIDES:
+        toggleAlignmentGuides();
+        break;
+      case ToolType.TOGGLE_MAGNETIC:
+        toggleMagneticSnap();
+        break;
+      case ToolType.TOGGLE_MEASUREMENTS:
+        toggleMeasurements();
+        break;
+      case ToolType.TOGGLE_PERFORMANCE:
+        togglePerformanceMonitor();
+        break;
       // TODO: 实现其他工具功能
       default:
         console.log('Tool clicked:', tool.type);
     }
-  }, [undo, redo, deleteSelectedElements, setActiveTool, onToolChange]);
+  }, [undo, redo, deleteSelectedElements, setActiveTool, onToolChange, 
+      toggleSnap, toggleAlignment, toggleAlignmentGuides, 
+      toggleMagneticSnap, toggleMeasurements, togglePerformanceMonitor]);
 
   // 获取工具配置
   const getToolConfig = useCallback((tool: ToolConfig): ToolConfig => {
@@ -76,10 +103,22 @@ export const Toolbar: React.FC<ToolbarProps> = ({ className, onToolChange }) => 
       case ToolType.TABLE:
       case ToolType.BARCODE:
         return { ...tool, active: activeTool === tool.type };
+      case ToolType.TOGGLE_SNAP:
+        return { ...tool, active: canvas.snapEnabled };
+      case ToolType.TOGGLE_ALIGNMENT:
+        return { ...tool, active: canvas.alignmentEnabled };
+      case ToolType.TOGGLE_GUIDES:
+        return { ...tool, active: canvas.showAlignmentGuides };
+      case ToolType.TOGGLE_MAGNETIC:
+        return { ...tool, active: canvas.magneticSnap };
+      case ToolType.TOGGLE_MEASUREMENTS:
+        return { ...tool, active: canvas.showMeasurements };
+      case ToolType.TOGGLE_PERFORMANCE:
+        return { ...tool, active: canvas.showPerformanceMonitor };
       default:
         return tool;
     }
-  }, [activeTool, canUndo, canRedo, selectedIds]);
+  }, [activeTool, canUndo, canRedo, selectedIds, canvas]);
 
   // 渲染工具组
   const renderToolGroup = (group: ToolGroup, index: number) => {

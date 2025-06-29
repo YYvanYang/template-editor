@@ -16,7 +16,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         <Toolbar />
       </header>
       
-      <main role="main" className="flex-1 flex">
+      <main role="main" className="flex-1 flex overflow-hidden">
         {children}
       </main>
     </div>

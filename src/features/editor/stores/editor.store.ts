@@ -22,6 +22,15 @@ interface EditorActions {
   toggleGrid: () => void
   toggleSnap: () => void
   
+  // Alignment actions
+  toggleAlignment: () => void
+  setAlignmentThreshold: (threshold: number) => void
+  toggleAlignmentGuides: () => void
+  toggleMagneticSnap: () => void
+  setMagneticCurve: (curve: 'linear' | 'quadratic' | 'cubic' | 'exponential') => void
+  toggleMeasurements: () => void
+  togglePerformanceMonitor: () => void
+  
   // Element actions
   addElement: (element: TemplateElement) => void
   updateElement: (id: string, updates: ElementUpdate) => void
@@ -64,6 +73,14 @@ export const useEditorStore = create<EditorState & EditorActions>()(
           offset: { x: 0, y: 0 },
           gridEnabled: true,
           snapEnabled: true,
+          // 对齐系统默认配置
+          alignmentEnabled: true,
+          alignmentThreshold: 5,
+          showAlignmentGuides: true,
+          magneticSnap: true,
+          magneticCurve: 'quadratic',
+          showMeasurements: true,
+          showPerformanceMonitor: false,
         },
         elements: new Map(),
         selectedIds: new Set(),
@@ -109,6 +126,42 @@ export const useEditorStore = create<EditorState & EditorActions>()(
         toggleSnap: () =>
           set((state) => {
             state.canvas.snapEnabled = !state.canvas.snapEnabled
+          }),
+
+        // Alignment actions
+        toggleAlignment: () =>
+          set((state) => {
+            state.canvas.alignmentEnabled = !state.canvas.alignmentEnabled
+          }),
+
+        setAlignmentThreshold: (threshold) =>
+          set((state) => {
+            state.canvas.alignmentThreshold = threshold
+          }),
+
+        toggleAlignmentGuides: () =>
+          set((state) => {
+            state.canvas.showAlignmentGuides = !state.canvas.showAlignmentGuides
+          }),
+
+        toggleMagneticSnap: () =>
+          set((state) => {
+            state.canvas.magneticSnap = !state.canvas.magneticSnap
+          }),
+
+        setMagneticCurve: (curve) =>
+          set((state) => {
+            state.canvas.magneticCurve = curve
+          }),
+
+        toggleMeasurements: () =>
+          set((state) => {
+            state.canvas.showMeasurements = !state.canvas.showMeasurements
+          }),
+
+        togglePerformanceMonitor: () =>
+          set((state) => {
+            state.canvas.showPerformanceMonitor = !state.canvas.showPerformanceMonitor
           }),
 
         // Element actions
