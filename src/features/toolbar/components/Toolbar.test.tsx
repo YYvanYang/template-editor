@@ -35,6 +35,12 @@ vi.mock('lucide-react', () => ({
   Settings: () => null,
   Download: () => null,
   Eye: () => null,
+  Grid3x3: () => null,
+  Magnet: () => null,
+  Minus: () => null,
+  Ruler: () => null,
+  Activity: () => null,
+  ScanLine: () => null,
 }));
 
 // Mock Zustand store
@@ -48,8 +54,49 @@ vi.mock('@/features/editor/stores/editor.store', () => ({
     canRedo: true,
     deleteSelectedElements: vi.fn(),
     selectedIds: new Set(['element1']),
+    canvas: {
+      snapEnabled: false,
+      alignmentEnabled: false,
+      showAlignmentGuides: false,
+      magneticSnap: false,
+      showMeasurements: false,
+      showPerformanceMonitor: false,
+    },
+    toggleSnap: vi.fn(),
+    toggleAlignment: vi.fn(),
+    toggleAlignmentGuides: vi.fn(),
+    toggleMagneticSnap: vi.fn(),
+    toggleMeasurements: vi.fn(),
+    togglePerformanceMonitor: vi.fn(),
   })),
 }));
+
+// Helper to create default store mock
+const createStoreMock = (overrides = {}) => ({
+  activeTool: ToolType.SELECT,
+  setActiveTool: vi.fn(),
+  undo: vi.fn(),
+  redo: vi.fn(),
+  canUndo: true,
+  canRedo: true,
+  deleteSelectedElements: vi.fn(),
+  selectedIds: new Set(['element1']),
+  canvas: {
+    snapEnabled: false,
+    alignmentEnabled: false,
+    showAlignmentGuides: false,
+    magneticSnap: false,
+    showMeasurements: false,
+    showPerformanceMonitor: false,
+  },
+  toggleSnap: vi.fn(),
+  toggleAlignment: vi.fn(),
+  toggleAlignmentGuides: vi.fn(),
+  toggleMagneticSnap: vi.fn(),
+  toggleMeasurements: vi.fn(),
+  togglePerformanceMonitor: vi.fn(),
+  ...overrides,
+});
 
 describe('Toolbar', () => {
   beforeEach(() => {
@@ -88,16 +135,9 @@ describe('Toolbar', () => {
   it('应该处理工具切换', () => {
     const setActiveTool = vi.fn();
     
-    vi.mocked(useEditorStore).mockReturnValue({
-      activeTool: ToolType.SELECT,
+    vi.mocked(useEditorStore).mockReturnValue(createStoreMock({
       setActiveTool,
-      undo: vi.fn(),
-      redo: vi.fn(),
-      canUndo: true,
-      canRedo: true,
-      deleteSelectedElements: vi.fn(),
-      selectedIds: new Set(['element1']),
-    } as any);
+    }) as any);
 
     const { container } = render(<Toolbar />);
     const textButton = container.querySelector('[aria-label="文本"]');
@@ -109,16 +149,9 @@ describe('Toolbar', () => {
   it('应该处理撤销操作', () => {
     const undo = vi.fn();
     
-    vi.mocked(useEditorStore).mockReturnValue({
-      activeTool: ToolType.SELECT,
-      setActiveTool: vi.fn(),
+    vi.mocked(useEditorStore).mockReturnValue(createStoreMock({
       undo,
-      redo: vi.fn(),
-      canUndo: true,
-      canRedo: true,
-      deleteSelectedElements: vi.fn(),
-      selectedIds: new Set(['element1']),
-    } as any);
+    }) as any);
 
     const { container } = render(<Toolbar />);
     const undoButton = container.querySelector('[aria-label="撤销"]');
@@ -130,16 +163,9 @@ describe('Toolbar', () => {
   it('应该处理重做操作', () => {
     const redo = vi.fn();
     
-    vi.mocked(useEditorStore).mockReturnValue({
-      activeTool: ToolType.SELECT,
-      setActiveTool: vi.fn(),
-      undo: vi.fn(),
+    vi.mocked(useEditorStore).mockReturnValue(createStoreMock({
       redo,
-      canUndo: true,
-      canRedo: true,
-      deleteSelectedElements: vi.fn(),
-      selectedIds: new Set(['element1']),
-    } as any);
+    }) as any);
 
     const { container } = render(<Toolbar />);
     const redoButton = container.querySelector('[aria-label="重做"]');
@@ -149,16 +175,9 @@ describe('Toolbar', () => {
   });
 
   it('应该禁用撤销按钮当无法撤销时', () => {
-    vi.mocked(useEditorStore).mockReturnValue({
-      activeTool: ToolType.SELECT,
-      setActiveTool: vi.fn(),
-      undo: vi.fn(),
-      redo: vi.fn(),
+    vi.mocked(useEditorStore).mockReturnValue(createStoreMock({
       canUndo: false,
-      canRedo: true,
-      deleteSelectedElements: vi.fn(),
-      selectedIds: new Set(['element1']),
-    } as any);
+    }) as any);
 
     const { container } = render(<Toolbar />);
     const undoButton = container.querySelector('[aria-label="撤销"]');
@@ -169,16 +188,9 @@ describe('Toolbar', () => {
   it('应该处理删除操作', () => {
     const deleteSelectedElements = vi.fn();
     
-    vi.mocked(useEditorStore).mockReturnValue({
-      activeTool: ToolType.SELECT,
-      setActiveTool: vi.fn(),
-      undo: vi.fn(),
-      redo: vi.fn(),
-      canUndo: true,
-      canRedo: true,
+    vi.mocked(useEditorStore).mockReturnValue(createStoreMock({
       deleteSelectedElements,
-      selectedIds: new Set(['element1']),
-    } as any);
+    }) as any);
 
     const { container } = render(<Toolbar />);
     const deleteButton = container.querySelector('[aria-label="删除"]');
@@ -188,16 +200,9 @@ describe('Toolbar', () => {
   });
 
   it('应该禁用删除按钮当没有选中元素时', () => {
-    vi.mocked(useEditorStore).mockReturnValue({
-      activeTool: ToolType.SELECT,
-      setActiveTool: vi.fn(),
-      undo: vi.fn(),
-      redo: vi.fn(),
-      canUndo: true,
-      canRedo: true,
-      deleteSelectedElements: vi.fn(),
+    vi.mocked(useEditorStore).mockReturnValue(createStoreMock({
       selectedIds: new Set(),
-    } as any);
+    }) as any);
 
     const { container } = render(<Toolbar />);
     const deleteButton = container.querySelector('[aria-label="删除"]');

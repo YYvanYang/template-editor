@@ -174,6 +174,10 @@ export class RTree<T extends { id: string }> implements SpatialIndex<T> {
    * 标准化边界
    */
   private normalizeBounds(bounds: Partial<ElementBounds>): ElementBounds {
+    // For partial bounds, we need to handle them differently
+    // If only left is provided, we want elements where right >= left
+    // If only right is provided, we want elements where left <= right
+    // etc.
     const left = bounds.left ?? -Infinity;
     const top = bounds.top ?? -Infinity;
     const right = bounds.right ?? Infinity;
@@ -185,10 +189,10 @@ export class RTree<T extends { id: string }> implements SpatialIndex<T> {
       top,
       right,
       bottom,
-      centerX: (left + right) / 2,
-      centerY: (top + bottom) / 2,
-      width: right - left,
-      height: bottom - top,
+      centerX: isFinite(left) && isFinite(right) ? (left + right) / 2 : 0,
+      centerY: isFinite(top) && isFinite(bottom) ? (top + bottom) / 2 : 0,
+      width: isFinite(left) && isFinite(right) ? right - left : Infinity,
+      height: isFinite(top) && isFinite(bottom) ? bottom - top : Infinity,
     };
   }
 

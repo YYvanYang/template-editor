@@ -37,3 +37,12 @@ vi.mock('lucide-react', async () => {
     // Ensure all icons are properly exported
   };
 });
+
+// Mock requestAnimationFrame and cancelAnimationFrame
+global.requestAnimationFrame = vi.fn().mockImplementation((callback) => {
+  return setTimeout(() => callback(Date.now()), 0);
+});
+
+global.cancelAnimationFrame = vi.fn().mockImplementation((id) => {
+  clearTimeout(id);
+});

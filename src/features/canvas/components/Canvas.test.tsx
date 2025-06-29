@@ -61,6 +61,7 @@ vi.mock('react-konva', () => ({
         data-y={y}
         data-ondragmove={onDragMove ? 'true' : 'false'}
         data-ondragend={onDragEnd ? 'true' : 'false'}
+        draggable={draggable ? 'true' : 'false'}
         {...props}
       >
         {children}
