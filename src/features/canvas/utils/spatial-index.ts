@@ -1,4 +1,5 @@
 import type { ElementBounds } from '../types/alignment.types';
+import { OptimizedRTree } from './spatial-index-optimized';
 
 /**
  * 空间索引接口
@@ -34,10 +35,10 @@ interface RTreeEntry<T> {
 }
 
 /**
- * R-tree 实现
- * 用于高效的空间查询，优化大量元素的对齐检测性能
+ * R-tree 实现（原始版本，保留用于参考）
+ * 注意：此实现存在大数据集的性能问题，请使用 OptimizedRTree
  */
-export class RTree<T extends { id: string }> implements SpatialIndex<T> {
+class RTreeOriginal<T extends { id: string }> implements SpatialIndex<T> {
   private root: RTreeNode<T>;
   private maxEntries: number;
   private minEntries: number;
@@ -517,11 +518,14 @@ export class RTree<T extends { id: string }> implements SpatialIndex<T> {
   }
 }
 
+// 导出优化版本作为默认 RTree
+export { OptimizedRTree as RTree } from './spatial-index-optimized';
+
 /**
  * 创建空间索引
  */
 export function createSpatialIndex<T extends { id: string }>(
   maxEntries?: number
 ): SpatialIndex<T> {
-  return new RTree<T>(maxEntries);
+  return new OptimizedRTree<T>(maxEntries);
 }

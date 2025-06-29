@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { RTree, createSpatialIndex } from '../spatial-index';
+import { OptimizedRTree, createOptimizedSpatialIndex } from '../spatial-index-optimized';
 import type { ElementBounds } from '../../types/alignment.types';
 
 describe('spatial-index', () => {
@@ -218,11 +219,9 @@ describe('spatial-index', () => {
   });
 
   describe('performance with many elements', () => {
-    it.skip('should handle large number of elements efficiently', () => {
-      // TODO: Fix R-tree implementation for large datasets
-      // The R-tree seems to have issues with bulk insertions
-      // Use a smaller test first to debug
-      const rtreeDebug = new RTree<{ id: string; bounds: ElementBounds }>();
+    it.skip('should handle large number of elements efficiently (Original)', () => {
+      // Skip original implementation test due to bugs
+      const rtreeOriginal = new RTree<{ id: string; bounds: ElementBounds }>();
       
       // Insert a small 3x3 grid for debugging
       const debugElements: Array<{ id: string; bounds: ElementBounds }> = [];
@@ -319,6 +318,248 @@ describe('spatial-index', () => {
       
       const results = index.search({ left: 0, top: 0, right: 10, bottom: 10 });
       expect(results).toHaveLength(1);
+    });
+  });
+});
+
+describe('optimized-spatial-index', () => {
+  let rtree: OptimizedRTree<{ id: string; bounds: ElementBounds }>;
+
+  beforeEach(() => {
+    rtree = new OptimizedRTree();
+  });
+
+  const createTestElement = (
+    id: string,
+    x: number,
+    y: number,
+    width: number,
+    height: number
+  ): { id: string; bounds: ElementBounds } => {
+    const bounds: ElementBounds = {
+      id,
+      left: x,
+      top: y,
+      right: x + width,
+      bottom: y + height,
+      centerX: x + width / 2,
+      centerY: y + height / 2,
+      width,
+      height,
+    };
+    return { id, bounds };
+  };
+
+  describe('basic operations', () => {
+    it('should insert and search elements', () => {
+      const elem1 = createTestElement('1', 0, 0, 50, 50);
+      const elem2 = createTestElement('2', 100, 100, 50, 50);
+      
+      rtree.insert(elem1, elem1.bounds);
+      rtree.insert(elem2, elem2.bounds);
+      
+      expect(rtree.size()).toBe(2);
+      
+      const results = rtree.search({ left: 25, top: 25, right: 75, bottom: 75 });
+      expect(results).toHaveLength(1);
+      expect(results[0].id).toBe('1');
+    });
+
+    it('should handle bulk loading', () => {
+      const elements: Array<{ item: { id: string; bounds: ElementBounds }; bounds: ElementBounds }> = [];
+      
+      // Create a 10x10 grid
+      for (let row = 0; row < 10; row++) {
+        for (let col = 0; col < 10; col++) {
+          const elem = createTestElement(`${row}-${col}`, col * 60, row * 60, 50, 50);
+          elements.push({ item: elem, bounds: elem.bounds });
+        }
+      }
+      
+      rtree.bulkLoad(elements);
+      
+      expect(rtree.size()).toBe(100);
+      expect(rtree.validate()).toBe(true);
+      
+      // Search in the middle
+      const results = rtree.search({
+        left: 150,
+        top: 150,
+        right: 350,
+        bottom: 350,
+      });
+      
+      expect(results.length).toBeGreaterThan(0);
+      expect(results.length).toBeLessThanOrEqual(16); // At most 4x4 grid
+    });
+  });
+
+  describe('performance with large datasets', () => {
+    it('should handle 1000 elements efficiently', () => {
+      const elementCount = 1000;
+      const elements: Array<{ item: { id: string; bounds: ElementBounds }; bounds: ElementBounds }> = [];
+      
+      // Create elements in a grid pattern
+      const cols = Math.ceil(Math.sqrt(elementCount));
+      for (let i = 0; i < elementCount; i++) {
+        const row = Math.floor(i / cols);
+        const col = i % cols;
+        const elem = createTestElement(
+          `elem${i}`,
+          col * 100,
+          row * 100,
+          50,
+          50
+        );
+        elements.push({ item: elem, bounds: elem.bounds });
+      }
+      
+      // Bulk load for better performance
+      const loadStart = performance.now();
+      rtree.bulkLoad(elements);
+      const loadTime = performance.now() - loadStart;
+      
+      expect(rtree.size()).toBe(elementCount);
+      expect(rtree.validate()).toBe(true);
+      expect(loadTime).toBeLessThan(50); // Should load in < 50ms
+      
+      // Test search performance
+      const searchStart = performance.now();
+      const results = rtree.search({
+        left: 500,
+        top: 500,
+        right: 1500,
+        bottom: 1500,
+      });
+      const searchTime = performance.now() - searchStart;
+      
+      expect(results.length).toBeGreaterThan(0);
+      expect(searchTime).toBeLessThan(5); // Search should be < 5ms
+      
+      // Get performance metrics
+      const metrics = rtree.getMetrics();
+      console.log('Performance metrics:', metrics);
+    });
+
+    it('should handle 10000 elements efficiently', () => {
+      const elementCount = 10000;
+      const elements: Array<{ item: { id: string; bounds: ElementBounds }; bounds: ElementBounds }> = [];
+      
+      // Create elements in a grid pattern
+      const cols = Math.ceil(Math.sqrt(elementCount));
+      for (let i = 0; i < elementCount; i++) {
+        const row = Math.floor(i / cols);
+        const col = i % cols;
+        const elem = createTestElement(
+          `elem${i}`,
+          col * 100,
+          row * 100,
+          50,
+          50
+        );
+        elements.push({ item: elem, bounds: elem.bounds });
+      }
+      
+      // Bulk load
+      const loadStart = performance.now();
+      rtree.bulkLoad(elements);
+      const loadTime = performance.now() - loadStart;
+      
+      expect(rtree.size()).toBe(elementCount);
+      expect(loadTime).toBeLessThan(200); // Should load in < 200ms
+      
+      // Test multiple searches
+      const searchCount = 100;
+      const totalSearchTime = performance.now();
+      
+      for (let i = 0; i < searchCount; i++) {
+        const x = Math.random() * 10000;
+        const y = Math.random() * 10000;
+        const results = rtree.search({
+          left: x,
+          top: y,
+          right: x + 500,
+          bottom: y + 500,
+        });
+        expect(results).toBeDefined();
+      }
+      
+      const avgSearchTime = (performance.now() - totalSearchTime) / searchCount;
+      expect(avgSearchTime).toBeLessThan(2); // Average search < 2ms
+    });
+  });
+
+  describe('edge cases', () => {
+    it('should handle remove and reinsert', () => {
+      const elements: Array<{ item: { id: string; bounds: ElementBounds }; bounds: ElementBounds }> = [];
+      
+      // Create 50 elements
+      for (let i = 0; i < 50; i++) {
+        const elem = createTestElement(`elem${i}`, i * 20, i * 20, 50, 50);
+        elements.push({ item: elem, bounds: elem.bounds });
+      }
+      
+      rtree.bulkLoad(elements);
+      expect(rtree.size()).toBe(50);
+      
+      // Remove half
+      for (let i = 0; i < 25; i++) {
+        rtree.remove(`elem${i}`);
+      }
+      
+      expect(rtree.size()).toBe(25);
+      expect(rtree.validate()).toBe(true);
+      
+      // Reinsert with different positions
+      for (let i = 0; i < 25; i++) {
+        const elem = createTestElement(`elem${i}`, i * 30, i * 30, 60, 60);
+        rtree.insert(elem, elem.bounds);
+      }
+      
+      expect(rtree.size()).toBe(50);
+      expect(rtree.validate()).toBe(true);
+    });
+
+    it('should handle radius search', () => {
+      const elements: Array<{ item: { id: string; bounds: ElementBounds }; bounds: ElementBounds }> = [];
+      
+      // Create elements in a circle pattern
+      const centerX = 500;
+      const centerY = 500;
+      const radius = 200;
+      const count = 50;
+      
+      for (let i = 0; i < count; i++) {
+        const angle = (i / count) * Math.PI * 2;
+        const x = centerX + Math.cos(angle) * radius;
+        const y = centerY + Math.sin(angle) * radius;
+        const elem = createTestElement(`elem${i}`, x - 25, y - 25, 50, 50);
+        elements.push({ item: elem, bounds: elem.bounds });
+      }
+      
+      rtree.bulkLoad(elements);
+      
+      // Search within radius
+      const results = rtree.searchRadius({ x: centerX, y: centerY }, radius + 50);
+      expect(results.length).toBe(count);
+      
+      // Search outside radius
+      const outsideResults = rtree.searchRadius({ x: centerX, y: centerY }, radius / 2);
+      expect(outsideResults.length).toBe(0);
+    });
+  });
+
+  describe('createOptimizedSpatialIndex', () => {
+    it('should create an optimized spatial index instance', () => {
+      const index = createOptimizedSpatialIndex<{ id: string }>();
+      
+      expect(index).toBeDefined();
+      expect(index.insert).toBeDefined();
+      expect(index.search).toBeDefined();
+      expect(index.remove).toBeDefined();
+      expect(index.clear).toBeDefined();
+      expect(index.bulkLoad).toBeDefined();
+      expect(index.validate).toBeDefined();
     });
   });
 });
