@@ -204,20 +204,22 @@ export const RulerCanvas: React.FC<RulerProps> = (props) => {
       // 需要转换为标尺上的位置
       const mousePos = orientation === 'horizontal' ? mousePosition.x : mousePosition.y;
       
-      // 绘制指示线
+      // 绘制指示线 - 使用更醒目的样式
       ctx.strokeStyle = '#007bff';
-      ctx.lineWidth = 1;
+      ctx.lineWidth = 2; // 加粗辅助线
+      ctx.setLineDash([5, 3]); // 虚线样式
       ctx.beginPath();
       
       if (orientation === 'horizontal') {
-        ctx.moveTo(mousePos + 0.5, 0);
-        ctx.lineTo(mousePos + 0.5, canvasHeight);
+        ctx.moveTo(mousePos, 0);
+        ctx.lineTo(mousePos, canvasHeight);
       } else {
-        ctx.moveTo(0, mousePos + 0.5);
-        ctx.lineTo(canvasWidth, mousePos + 0.5);
+        ctx.moveTo(0, mousePos);
+        ctx.lineTo(canvasWidth, mousePos);
       }
       
       ctx.stroke();
+      ctx.setLineDash([]); // 恢复实线
 
       // 绘制数值标签
       // mousePos 是相对于画布容器的坐标（已经是相对于画布左上角的位置）
@@ -227,13 +229,29 @@ export const RulerCanvas: React.FC<RulerProps> = (props) => {
       const unitValue = canvasPixelValue / tickParams.unitConfig.toPx;
       const label = `${unitValue.toFixed(1)}${unit}`;
 
+      // 调整标签背景的位置和大小
+      const labelPadding = 2;
+      const labelWidth = 40;
+      const labelHeight = 14;
+      
       ctx.fillStyle = '#007bff';
-      ctx.fillRect(
-        orientation === 'horizontal' ? mousePos - 20 : canvasWidth - 40,
-        orientation === 'horizontal' ? canvasHeight - 15 : mousePos - 10,
-        40,
-        15
-      );
+      if (orientation === 'horizontal') {
+        // 水平标尺：标签在底部
+        ctx.fillRect(
+          mousePos - labelWidth/2,
+          canvasHeight - labelHeight - labelPadding,
+          labelWidth,
+          labelHeight
+        );
+      } else {
+        // 垂直标尺：标签在右侧
+        ctx.fillRect(
+          canvasWidth - labelWidth - labelPadding,
+          mousePos - labelHeight/2,
+          labelWidth,
+          labelHeight
+        );
+      }
 
       ctx.fillStyle = 'white';
       ctx.font = `${fontSize - 1}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
@@ -241,10 +259,12 @@ export const RulerCanvas: React.FC<RulerProps> = (props) => {
       ctx.textBaseline = 'middle';
       
       if (orientation === 'horizontal') {
-        ctx.fillText(label, mousePos, canvasHeight - 7.5);
+        // 水平标尺：文字在标签中央
+        ctx.fillText(label, mousePos, canvasHeight - labelHeight/2 - labelPadding);
       } else {
+        // 垂直标尺：旋转文字
         ctx.save();
-        ctx.translate(canvasWidth - 20, mousePos);
+        ctx.translate(canvasWidth - labelWidth/2 - labelPadding, mousePos);
         ctx.rotate(-Math.PI / 2);
         ctx.fillText(label, 0, 0);
         ctx.restore();

@@ -107,37 +107,6 @@ export const Grid: React.FC<GridProps> = ({ zoom, size, offset, unit = 'mm' }) =
     }
   }
   
-  // 添加主网格线（更粗的线）
-  const majorInterval = unitConfig.majorInterval * unitConfig.toPx
-  const majorStrokeWidth = strokeWidth * 1.5
-  
-  // 主要垂直线
-  for (let x = Math.floor(startX / majorInterval) * majorInterval; x <= endX; x += majorInterval) {
-    if (x >= startX) {
-      lines.push(
-        <Line
-          key={`mv-${x}`}
-          points={[x, startY, x, endY]}
-          stroke="#d0d0d0"
-          strokeWidth={majorStrokeWidth}
-        />
-      )
-    }
-  }
-  
-  // 主要水平线
-  for (let y = Math.floor(startY / majorInterval) * majorInterval; y <= endY; y += majorInterval) {
-    if (y >= startY) {
-      lines.push(
-        <Line
-          key={`mh-${y}`}
-          points={[startX, y, endX, y]}
-          stroke="#d0d0d0"
-          strokeWidth={majorStrokeWidth}
-        />
-      )
-    }
-  }
   
   return <>{lines}</>
 }

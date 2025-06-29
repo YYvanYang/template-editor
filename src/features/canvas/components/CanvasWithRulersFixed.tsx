@@ -28,7 +28,7 @@ export const CanvasWithRulersFixed: React.FC<CanvasWithRulersFixedProps> = ({
   
   const containerRef = useRef<HTMLDivElement>(null);
   const { canvas, template } = useEditorStore();
-  const rulerThickness = 20;
+  const rulerThickness = 30;
   const MM_TO_PX = 3.7795275591; // 1mm = 3.7795275591px at 96dpi
   
   // 构建 viewport 对象
