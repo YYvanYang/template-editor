@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { useEditorStore } from '@/features/editor/stores/editor.store';
-import { CanvasWithRulersFixed } from '@/features/canvas/components/CanvasWithRulersFixed';
+import { CanvasWithRulers } from '@/features/canvas/components/CanvasWithRulers';
 
 /**
  * 标尺对齐调试工具
@@ -49,7 +49,7 @@ export const RulerAlignmentDebug: React.FC = () => {
       
       {/* 画布区域 */}
       <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
-        <CanvasWithRulersFixed 
+        <CanvasWithRulers 
           showRulers={true} 
           unit={unit}
           showDiagnostics={showDiagnostics}

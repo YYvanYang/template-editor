@@ -1,5 +1,5 @@
 import { Layout } from '@/shared/components/Layout'
-import { CanvasWithRulersFixed } from '@/features/canvas/components/CanvasWithRulersFixed'
+import { CanvasWithRulers } from '@/features/canvas/components/CanvasWithRulers'
 import { RulerDebug } from '@/debug/RulerDebug'
 import { CanvasRulerDebug } from '@/debug/CanvasRulerDebug'
 import { RulerTest } from '@/debug/RulerTest'
@@ -67,7 +67,7 @@ function App() {
         
         {/* 中间画布区域 */}
         <div className="flex-1 h-full">
-          <CanvasWithRulersFixed showRulers={true} unit="mm" showDiagnostics={false} />
+          <CanvasWithRulers showRulers={true} unit="mm" showDiagnostics={false} />
         </div>
         
         {/* 右侧属性面板 */}

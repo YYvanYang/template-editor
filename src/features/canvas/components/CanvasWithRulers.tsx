@@ -5,7 +5,7 @@ import { RulerCorner } from './RulerCorner';
 import { useEditorStore } from '@/features/editor/stores/editor.store';
 import { RulerDiagnostics } from '@/debug/RulerDiagnostics';
 
-interface CanvasWithRulersFixedProps {
+interface CanvasWithRulersProps {
   showRulers?: boolean;
   unit?: 'mm' | 'cm' | 'px';
   onUnitChange?: (unit: 'mm' | 'cm' | 'px') => void;
@@ -13,10 +13,10 @@ interface CanvasWithRulersFixedProps {
 }
 
 /**
- * 带标尺的画布组件（修复版）
- * 使用 Canvas 渲染标尺，解决所有已知问题
+ * 带标尺的画布组件
+ * 使用 Canvas 渲染标尺，提供高性能和精确的标尺显示
  */
-export const CanvasWithRulersFixed: React.FC<CanvasWithRulersFixedProps> = ({
+export const CanvasWithRulers: React.FC<CanvasWithRulersProps> = ({
   showRulers = true,
   unit: initialUnit = 'mm',
   onUnitChange,
