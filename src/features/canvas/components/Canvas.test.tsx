@@ -9,7 +9,7 @@ import { useAlignment } from '../hooks/useAlignment'
 // 使用 div 元素替代 Konva 组件以避免 JSDOM 环境限制
 // 参见 SelectionOverlay.test.tsx 中的详细说明
 vi.mock('react-konva', () => ({
-  Stage: React.forwardRef(({ children, onWheel, onDragMove, onDragEnd, scaleX, scaleY, x, y, ...props }: any, ref: any) => {
+  Stage: React.forwardRef(({ children, onWheel, onDragMove, onDragEnd, scaleX, scaleY, x, y, width, height, draggable, ...props }: any, ref: any) => {
     const stageRef = React.useRef({
       getPointerPosition: () => ({ x: 100, y: 100 }),
       x: () => x || 0,
@@ -68,10 +68,16 @@ vi.mock('react-konva', () => ({
     )
   }),
   Layer: ({ children }: any) => <div data-testid="konva-layer">{children}</div>,
-  Line: ({ points, ...props }: any) => (
-    <div data-testid="konva-line" data-points={points} {...props} />
+  Line: ({ points, stroke, strokeWidth, shadowColor, shadowBlur, shadowOffsetX, shadowOffsetY, ...props }: any) => (
+    <div 
+      data-testid="konva-line" 
+      data-points={points}
+      data-stroke={stroke}
+      data-stroke-width={strokeWidth}
+      {...props} 
+    />
   ),
-  Rect: ({ x, y, width, height, fill, ...props }: any) => (
+  Rect: ({ x, y, width, height, fill, stroke, strokeWidth, shadowColor, shadowBlur, shadowOffsetX, shadowOffsetY, ...props }: any) => (
     <div 
       data-testid="konva-rect" 
       data-x={x}
@@ -79,11 +85,22 @@ vi.mock('react-konva', () => ({
       data-width={width}
       data-height={height}
       data-fill={fill}
+      data-stroke={stroke}
+      data-stroke-width={strokeWidth}
       {...props} 
     />
   ),
-  Group: ({ children, clip, ...props }: any) => (
-    <div data-testid="konva-group" data-clip={JSON.stringify(clip)} {...props}>
+  Group: ({ children, clip, x, y, rotation, scaleX, scaleY, ...props }: any) => (
+    <div 
+      data-testid="konva-group" 
+      data-clip={JSON.stringify(clip)}
+      data-x={x}
+      data-y={y}
+      data-rotation={rotation}
+      data-scale-x={scaleX}
+      data-scale-y={scaleY}
+      {...props}
+    >
       {children}
     </div>
   ),

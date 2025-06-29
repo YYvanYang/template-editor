@@ -165,22 +165,23 @@ describe('EnhancedAlignmentEngine', () => {
     it('should consider element alignment points', () => {
       const element = {
         id: 'elem1',
-        x: 75,
+        x: 77,
         y: 150,
         width: 50,
         height: 50,
         rotation: 0,
       };
 
-      // Element right edge is at x=125, should align to guide at x=100
+      // Element right edge is at x=127, close to guide at x=100
+      // The algorithm should find that the center (at x=102) is within threshold of the guide
       const result = engine.checkMagneticAlignment(
         element,
-        { x: 75, y: 150 },
+        { x: 77, y: 150 },
         guides
       );
 
       expect(result.aligned).toBe(true);
-      expect(result.x).toBe(50); // Adjusted so right edge aligns to guide
+      expect(result.x).toBe(75); // Adjusted so center aligns to guide
     });
   });
 

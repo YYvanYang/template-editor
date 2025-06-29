@@ -154,60 +154,70 @@ export class EnhancedAlignmentEngine {
       smoothPosition: position,
     };
 
-    let minDistance = Infinity;
+    let minVerticalDistance = Infinity;
+    let minHorizontalDistance = Infinity;
+    let verticalAlignment: Partial<MagneticAlignmentResult> | null = null;
+    let horizontalAlignment: Partial<MagneticAlignmentResult> | null = null;
 
     // 检查每个对齐点
     for (const point of alignmentPoints) {
       // 检查垂直辅助线
       for (const guide of guides.filter(g => g.orientation === 'vertical' && g.visible !== false)) {
         const distance = Math.abs(point.x - guide.position);
-        if (distance < this.config.threshold && distance < minDistance) {
+        if (distance < this.config.threshold && distance < minVerticalDistance) {
           const strength = this.calculateMagneticStrength(distance, this.config.threshold);
           const snapX = guide.position - (point.x - position.x);
           const smoothX = this.applyMagneticSnap({ x: position.x, y: 0 }, { x: snapX, y: 0 }, strength).x;
 
-          bestAlignment = {
-            aligned: true,
+          verticalAlignment = {
             x: snapX,
-            y: position.y,
             deltaX: snapX - position.x,
-            deltaY: 0,
             verticalGuide: guide,
             magneticStrength: strength,
             smoothPosition: { x: smoothX, y: position.y },
           };
-          minDistance = distance;
+          minVerticalDistance = distance;
         }
       }
 
       // 检查水平辅助线
       for (const guide of guides.filter(g => g.orientation === 'horizontal' && g.visible !== false)) {
         const distance = Math.abs(point.y - guide.position);
-        if (distance < this.config.threshold && distance < minDistance) {
+        if (distance < this.config.threshold && distance < minHorizontalDistance) {
           const strength = this.calculateMagneticStrength(distance, this.config.threshold);
           const snapY = guide.position - (point.y - position.y);
           const smoothY = this.applyMagneticSnap({ x: 0, y: position.y }, { x: 0, y: snapY }, strength).y;
 
-          if (bestAlignment.aligned && bestAlignment.verticalGuide) {
-            // 同时对齐到垂直和水平辅助线
-            bestAlignment.y = snapY;
-            bestAlignment.deltaY = snapY - position.y;
-            bestAlignment.horizontalGuide = guide;
-            bestAlignment.smoothPosition.y = smoothY;
-          } else {
-            bestAlignment = {
-              aligned: true,
-              x: position.x,
-              y: snapY,
-              deltaX: 0,
-              deltaY: snapY - position.y,
-              horizontalGuide: guide,
-              magneticStrength: strength,
-              smoothPosition: { x: position.x, y: smoothY },
-            };
-          }
-          minDistance = distance;
+          horizontalAlignment = {
+            y: snapY,
+            deltaY: snapY - position.y,
+            horizontalGuide: guide,
+            magneticStrength: strength,
+            smoothPosition: { x: position.x, y: smoothY },
+          };
+          minHorizontalDistance = distance;
         }
+      }
+    }
+
+    // 组合垂直和水平对齐结果
+    if (verticalAlignment || horizontalAlignment) {
+      bestAlignment.aligned = true;
+      
+      if (verticalAlignment) {
+        bestAlignment.x = verticalAlignment.x!;
+        bestAlignment.deltaX = verticalAlignment.deltaX!;
+        bestAlignment.verticalGuide = verticalAlignment.verticalGuide;
+        bestAlignment.smoothPosition.x = verticalAlignment.smoothPosition!.x;
+        bestAlignment.magneticStrength = Math.max(bestAlignment.magneticStrength, verticalAlignment.magneticStrength!);
+      }
+      
+      if (horizontalAlignment) {
+        bestAlignment.y = horizontalAlignment.y!;
+        bestAlignment.deltaY = horizontalAlignment.deltaY!;
+        bestAlignment.horizontalGuide = horizontalAlignment.horizontalGuide;
+        bestAlignment.smoothPosition.y = horizontalAlignment.smoothPosition!.y;
+        bestAlignment.magneticStrength = Math.max(bestAlignment.magneticStrength, horizontalAlignment.magneticStrength!);
       }
     }
 
@@ -268,12 +278,16 @@ export class EnhancedAlignmentEngine {
     // 返回出现2次以上的间距模式
     return groups
       .filter(group => group.length >= 2)
-      .map(group => ({
-        spacing: Math.round(group[0].value),
-        count: group.length,
-        elements: this.extractElements(group),
-        axis,
-      }));
+      .map(group => {
+        // 计算平均间距
+        const avgSpacing = group.reduce((sum, item) => sum + item.value, 0) / group.length;
+        return {
+          spacing: Math.round(avgSpacing),
+          count: group.length,
+          elements: this.extractElements(group),
+          axis,
+        };
+      });
   }
 
   /**
