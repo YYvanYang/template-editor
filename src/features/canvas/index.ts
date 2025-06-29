@@ -1,7 +1,6 @@
 // Components
 export { Canvas } from './components/Canvas'
 export { Grid } from './components/Grid'
-export { AlignmentGuides } from './components/AlignmentGuides'
 export { AlignmentGuidesKonva } from './components/AlignmentGuidesKonva'
 export { ElementRenderer, ElementsRenderer } from './components/ElementRenderer'
 
