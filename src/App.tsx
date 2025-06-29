@@ -7,6 +7,7 @@ import { SimpleRulerTest } from '@/debug/SimpleRulerTest'
 import { RulerAlignmentDebug } from '@/debug/RulerAlignmentDebug'
 import { RulerAlignmentTest } from '@/debug/RulerAlignmentTest'
 import { EnhancedRulerDebug } from '@/debug/EnhancedRulerDebug'
+import { SimpleCoordinateTest } from '@/debug/SimpleCoordinateTest'
 
 function App() {
   // 临时添加调试模式
@@ -17,6 +18,7 @@ function App() {
   const isAlignmentTestMode = window.location.search.includes('debug=alignment');
   const isEnhancedDebugMode = window.location.search.includes('debug=enhanced');
   const isAlignmentDebugMode = window.location.search.includes('debug=alignment-debug');
+  const isCoordTestMode = window.location.search.includes('debug=coord-test');
   
   if (isDebugMode) {
     return <RulerDebug />;
@@ -44,6 +46,10 @@ function App() {
   
   if (isAlignmentDebugMode) {
     return <RulerAlignmentDebug />;
+  }
+  
+  if (isCoordTestMode) {
+    return <SimpleCoordinateTest />;
   }
   
   return (

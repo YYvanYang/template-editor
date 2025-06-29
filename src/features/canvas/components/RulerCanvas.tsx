@@ -226,21 +226,6 @@ export const RulerCanvas: React.FC<RulerProps> = (props) => {
       // 从像素转换为单位值
       const unitValue = canvasPixelValue / tickParams.unitConfig.toPx;
       const label = `${unitValue.toFixed(1)}${unit}`;
-      
-      // 调试日志
-      console.log(`${orientation} ruler mouse:`, {
-        mousePos,
-        viewportOffset,
-        canvasPixelValue,
-        unitValue,
-        scale: viewport.scale,
-        toPx: tickParams.unitConfig.toPx,
-        label,
-        // 添加更多调试信息
-        tickStart: minorStart,
-        tickEnd: endUnit,
-        canvasSize: orientation === 'horizontal' ? canvasSize?.width : canvasSize?.height
-      });
 
       ctx.fillStyle = '#007bff';
       ctx.fillRect(
