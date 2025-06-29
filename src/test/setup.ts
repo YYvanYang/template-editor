@@ -130,15 +130,30 @@ const createMockContext = () => ({
   getContextAttributes: vi.fn(() => ({ alpha: true })),
 } as CanvasRenderingContext2D)
 
-HTMLCanvasElement.prototype.getContext = vi.fn(function(this: HTMLCanvasElement, contextId: string, options?: any) {
+// Create a properly typed mock function for getContext
+const getContextMock = vi.fn(function(
+  this: HTMLCanvasElement,
+  contextId: string,
+  options?: any
+): RenderingContext | null {
   if (contextId === '2d') {
     const ctx = createMockContext()
     // Set the canvas reference
     ;(ctx as any).canvas = this
     return ctx
   }
+  // Return null for other context types
   return null
-}) as any
+})
+
+// Apply the mock with proper overloads
+HTMLCanvasElement.prototype.getContext = getContextMock as {
+  (contextId: '2d', options?: CanvasRenderingContext2DSettings): CanvasRenderingContext2D | null
+  (contextId: 'bitmaprenderer', options?: ImageBitmapRenderingContextSettings): ImageBitmapRenderingContext | null
+  (contextId: 'webgl' | 'experimental-webgl', options?: WebGLContextAttributes): WebGLRenderingContext | null
+  (contextId: 'webgl2' | 'experimental-webgl2', options?: WebGLContextAttributes): WebGL2RenderingContext | null
+  (contextId: string, options?: any): RenderingContext | null
+}
 
 // Mock Image constructor
 global.Image = vi.fn().mockImplementation(() => {
