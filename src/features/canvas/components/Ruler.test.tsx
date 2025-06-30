@@ -1,3 +1,17 @@
+/**
+ * @deprecated 此测试文件对应已废弃的 Ruler 组件
+ * 请参考 RulerCanvas.test.tsx 中的测试用例
+ * 
+ * 这些测试用例已经在 RulerCanvas.test.tsx 中有了更完善的覆盖：
+ * - 基础渲染测试
+ * - 单位和刻度测试
+ * - 鼠标交互测试
+ * - 视口变换测试
+ * - 性能优化测试
+ * 
+ * @see RulerCanvas.test.tsx
+ */
+
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Ruler } from './Ruler';

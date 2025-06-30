@@ -391,8 +391,12 @@ export default defineConfig({
 ### 技术选型历程
 1. **初始方案**：使用 `@scena/react-ruler` 
    - 问题：标签消失、坐标对齐困难、与新版本 React 兼容性问题
-2. **最终方案**：自定义 Canvas 实现 (`RulerCanvas.tsx`)
+2. **过渡方案**：
+   - `Ruler.tsx` - DOM 实现，性能受限（已废弃）
+   - `CanvasRuler.tsx` - 早期 Canvas 版本，功能不完善（已废弃）
+3. **最终方案**：自定义 Canvas 实现 (`RulerCanvas.tsx`)
    - 优势：完全控制渲染、高性能、精确对齐、支持设备像素比
+   - 这是当前推荐使用的标尺组件
 
 ### Canvas 标尺实现要点
 

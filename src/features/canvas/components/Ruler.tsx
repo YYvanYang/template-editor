@@ -1,10 +1,24 @@
+/**
+ * @deprecated 此组件已废弃，请使用 RulerCanvas 组件替代
+ * 
+ * 废弃原因：
+ * 1. DOM 渲染性能较差，大量刻度时会创建过多 DOM 元素
+ * 2. 功能相对简单，缺少高级特性（如高 DPI 支持、动态刻度等）
+ * 3. RulerCanvas 提供了更好的性能和更完整的功能
+ * 
+ * 迁移指南：
+ * import { RulerCanvas } from './RulerCanvas';
+ * 
+ * @see RulerCanvas
+ */
+
 import React, { useMemo, useCallback } from 'react';
 import type { RulerProps } from '../types/ruler.types';
 import { DEFAULT_RULER_CONFIG, UNIT_CONVERSIONS } from '../types/ruler.types';
 import { calculateTicks, getMouseValue, formatLabel } from '../utils/ruler.utils';
 
 /**
- * 标尺组件
+ * 标尺组件（已废弃）
  * 用于显示画布的测量标尺
  */
 export const Ruler: React.FC<RulerProps> = (props) => {

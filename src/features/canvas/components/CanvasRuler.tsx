@@ -1,10 +1,25 @@
+/**
+ * @deprecated 此组件已废弃，请使用 RulerCanvas 组件替代
+ * 
+ * 废弃原因：
+ * 1. 这是早期的 Canvas 实现版本，功能不够完善
+ * 2. 缺少性能优化（如 requestAnimationFrame、视口裁剪等）
+ * 3. 不支持高 DPI 屏幕和动态刻度调整
+ * 4. RulerCanvas 提供了更专业、更完整的实现
+ * 
+ * 迁移指南：
+ * import { RulerCanvas } from './RulerCanvas';
+ * 
+ * @see RulerCanvas
+ */
+
 import React, { useRef, useEffect, useCallback } from 'react';
 import type { RulerProps } from '../types/ruler.types';
 import { DEFAULT_RULER_CONFIG } from '../types/ruler.types';
 import { convertUnit, formatLabel } from '../utils/ruler.utils';
 
 /**
- * Canvas-based ruler component
+ * Canvas-based ruler component（已废弃）
  * Inspired by @scena/react-ruler implementation
  */
 export const CanvasRuler: React.FC<RulerProps> = (props) => {
