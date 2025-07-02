@@ -1,5 +1,8 @@
+import { useCallback } from 'react'
 import { Layout } from '@/shared/components/Layout'
 import { CanvasWithRulers } from '@/features/canvas/components/CanvasWithRulers'
+import { PropertyPanel } from '@/features/properties/components/PropertyPanel'
+import { useEditorStore } from '@/features/editor/stores/editor.store'
 import { RulerDebug } from '@/debug/RulerDebug'
 import { CanvasRulerDebug } from '@/debug/CanvasRulerDebug'
 import { RulerTest } from '@/debug/RulerTest'
@@ -10,6 +13,17 @@ import { EnhancedRulerDebug } from '@/debug/EnhancedRulerDebug'
 import { SimpleCoordinateTest } from '@/debug/SimpleCoordinateTest'
 
 function App() {
+  // 获取选中的元素和更新函数
+  const selectedElement = useEditorStore(state => state.selectedElement())
+  const updateElement = useEditorStore(state => state.updateElement)
+  
+  // 优化 PropertyPanel 的回调，避免不必要的重渲染
+  const handlePropertyChange = useCallback((key: string, value: any) => {
+    if (selectedElement) {
+      updateElement(selectedElement.id, { [key]: value })
+    }
+  }, [selectedElement?.id, updateElement])
+  
   // 临时添加调试模式
   const isDebugMode = window.location.search.includes('debug=ruler');
   const isCanvasDebugMode = window.location.search.includes('debug=canvas-ruler');
@@ -71,9 +85,11 @@ function App() {
         </div>
         
         {/* 右侧属性面板 */}
-        <aside className="w-80 bg-card border-l border-border p-4">
-          <h2 className="text-lg font-medium mb-4">属性面板</h2>
-          <p className="text-sm text-muted-foreground">选择元素查看属性</p>
+        <aside className="w-80 bg-card border-l border-border overflow-y-auto">
+          <PropertyPanel 
+            element={selectedElement}
+            onPropertyChange={handlePropertyChange}
+          />
         </aside>
       </div>
     </Layout>
