@@ -53,6 +53,9 @@ interface EditorActions {
   // Tool actions
   activeTool: ToolType
   setActiveTool: (tool: ToolType) => void
+  
+  // Computed getters
+  selectedElement: () => TemplateElement | null
 }
 
 const MIN_ZOOM = 0.1
@@ -270,6 +273,16 @@ export const useEditorStore = create<EditorState & EditorActions>()(
           set((state) => {
             state.activeTool = tool
           }),
+          
+        // Computed getters
+        selectedElement: () => {
+          const state = get()
+          if (state.selectedIds.size === 1) {
+            const id = Array.from(state.selectedIds)[0]
+            return state.elements.get(id) || null
+          }
+          return null
+        },
       }))
     ),
     {

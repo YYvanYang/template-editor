@@ -159,6 +159,148 @@ describe('EditorStore', () => {
     })
   })
 
+  describe('Selected Element Getter', () => {
+    it('should return null when no element is selected', () => {
+      const store = useEditorStore.getState()
+      expect(store.selectedElement?.()).toBe(null)
+    })
+
+    it('should return null when multiple elements are selected', () => {
+      const { addElement, selectElement } = useEditorStore.getState()
+      
+      const element1 = {
+        id: 'test-1',
+        type: 'text' as const,
+        name: 'Text 1',
+        x: 10,
+        y: 20,
+        width: 100,
+        height: 50,
+        rotation: 0,
+        locked: false,
+        visible: true,
+        opacity: 1,
+        content: 'Test Text 1',
+        fontFamily: 'Arial',
+        fontSize: 16,
+        fontWeight: 'normal' as const,
+        fontStyle: 'normal' as const,
+        textAlign: 'left' as const,
+        verticalAlign: 'top' as const,
+        color: '#000000',
+        lineHeight: 1.2,
+      }
+      
+      const element2 = {
+        id: 'test-2',
+        type: 'text' as const,
+        name: 'Text 2',
+        x: 50,
+        y: 60,
+        width: 100,
+        height: 50,
+        rotation: 0,
+        locked: false,
+        visible: true,
+        opacity: 1,
+        content: 'Test Text 2',
+        fontFamily: 'Arial',
+        fontSize: 16,
+        fontWeight: 'normal' as const,
+        fontStyle: 'normal' as const,
+        textAlign: 'left' as const,
+        verticalAlign: 'top' as const,
+        color: '#000000',
+        lineHeight: 1.2,
+      }
+      
+      addElement(element1)
+      addElement(element2)
+      selectElement('test-1')
+      selectElement('test-2')
+      
+      const store = useEditorStore.getState()
+      expect(store.selectedElement?.()).toBe(null)
+    })
+
+    it('should return the selected element when exactly one is selected', () => {
+      const { addElement, selectElement } = useEditorStore.getState()
+      
+      const element = {
+        id: 'test-1',
+        type: 'text' as const,
+        name: 'Text 1',
+        x: 10,
+        y: 20,
+        width: 100,
+        height: 50,
+        rotation: 0,
+        locked: false,
+        visible: true,
+        opacity: 1,
+        content: 'Test Text',
+        fontFamily: 'Arial',
+        fontSize: 16,
+        fontWeight: 'normal' as const,
+        fontStyle: 'normal' as const,
+        textAlign: 'left' as const,
+        verticalAlign: 'top' as const,
+        color: '#000000',
+        lineHeight: 1.2,
+      }
+      
+      addElement(element)
+      selectElement('test-1')
+      
+      const store = useEditorStore.getState()
+      const selectedElement = store.selectedElement?.()
+      expect(selectedElement).toEqual(element)
+    })
+
+    it('should update when selection changes', () => {
+      const { addElement, selectElement, clearSelection } = useEditorStore.getState()
+      
+      const element = {
+        id: 'test-1',
+        type: 'text' as const,
+        name: 'Text 1',
+        x: 10,
+        y: 20,
+        width: 100,
+        height: 50,
+        rotation: 0,
+        locked: false,
+        visible: true,
+        opacity: 1,
+        content: 'Test Text',
+        fontFamily: 'Arial',
+        fontSize: 16,
+        fontWeight: 'normal' as const,
+        fontStyle: 'normal' as const,
+        textAlign: 'left' as const,
+        verticalAlign: 'top' as const,
+        color: '#000000',
+        lineHeight: 1.2,
+      }
+      
+      addElement(element)
+      
+      // Initially no selection
+      let store = useEditorStore.getState()
+      expect(store.selectedElement?.()).toBe(null)
+      
+      // Select element
+      selectElement('test-1')
+      store = useEditorStore.getState()
+      expect(store.selectedElement?.()).toEqual(element)
+      
+      // Clear selection
+      clearSelection()
+      store = useEditorStore.getState()
+      expect(store.selectedElement?.()).toBe(null)
+    })
+  })
+
   describe('History (Undo/Redo)', () => {
     it('should save history when adding element', () => {
       const { addElement } = useEditorStore.getState()
