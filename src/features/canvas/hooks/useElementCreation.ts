@@ -16,7 +16,7 @@ export function useElementCreation() {
   const handleCanvasClick = useCallback(
     (e: KonvaEventObject<MouseEvent>) => {
       // Only create elements if a creation tool is active
-      if (activeTool === ToolType.SELECT) {
+      if (activeTool === ToolType.SELECT || activeTool === ToolType.HAND) {
         return
       }
 
@@ -38,7 +38,7 @@ export function useElementCreation() {
         case ToolType.TEXT:
           newElement = createTextElement(pos)
           break
-        case ToolType.RECTANGLE:
+        case ToolType.SHAPE:
           newElement = createRectangleElement(pos)
           break
         case ToolType.IMAGE:

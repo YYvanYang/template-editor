@@ -2,6 +2,7 @@ import React, { useRef, useCallback, useEffect, useState } from 'react'
 import { Stage, Layer, Rect, Group } from 'react-konva'
 import type { KonvaEventObject } from 'konva/lib/Node'
 import { useEditorStore } from '@/features/editor/stores/editor.store'
+import { ToolType } from '@/features/toolbar/types/toolbar.types'
 import { Grid } from './Grid'
 import { useCanvasEvents } from '../hooks/useCanvasEvents'
 import { useAlignment } from '../hooks/useAlignment'
@@ -30,6 +31,7 @@ export const Canvas: React.FC<CanvasProps> = ({ unit = 'mm' }) => {
     elements,
     selectedIds,
     template,
+    activeTool,
     setZoom,
     setOffset,
   } = useEditorStore()
@@ -165,8 +167,26 @@ export const Canvas: React.FC<CanvasProps> = ({ unit = 'mm' }) => {
     console.log('Guide dragged:', guideId, position)
   }, [])
 
+  // Determine cursor style based on active tool
+  const getCursorStyle = () => {
+    switch (activeTool) {
+      case ToolType.HAND:
+        return 'grab'
+      case ToolType.TEXT:
+        return 'text'
+      case ToolType.SELECT:
+        return 'default'
+      default:
+        return 'crosshair'
+    }
+  }
+
   return (
-    <div ref={containerRef} className="relative w-full h-full overflow-hidden" style={{ backgroundColor: '#f5f5f5' }}>
+    <div 
+      ref={containerRef} 
+      className="relative w-full h-full overflow-hidden" 
+      style={{ backgroundColor: '#f5f5f5', cursor: getCursorStyle() }}
+    >
       <Stage
         ref={stageRef}
         width={stageSize.width}
@@ -175,7 +195,7 @@ export const Canvas: React.FC<CanvasProps> = ({ unit = 'mm' }) => {
         scaleY={canvas.zoom}
         x={canvas.offset.x}
         y={canvas.offset.y}
-        draggable
+        draggable={activeTool === ToolType.HAND}
         onWheel={handleWheel}
         onDragMove={handleDragMove}
         onDragEnd={handleDragEnd}

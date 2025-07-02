@@ -171,8 +171,8 @@ describe('useElementCreation', () => {
     expect(state.elements.get('text-123')?.type).toBe('text')
   })
 
-  it('should create rectangle element when RECTANGLE tool is active', async () => {
-    useEditorStore.setState({ activeTool: ToolType.RECTANGLE })
+  it('should create rectangle element when SHAPE tool is active', async () => {
+    useEditorStore.setState({ activeTool: ToolType.SHAPE })
     
     const { result } = renderHook(() => useElementCreation())
     
@@ -257,7 +257,7 @@ describe('useElementCreation', () => {
   })
 
   it('should create elements with correct positions', async () => {
-    useEditorStore.setState({ activeTool: ToolType.RECTANGLE })
+    useEditorStore.setState({ activeTool: ToolType.SHAPE })
     
     const { result } = renderHook(() => useElementCreation())
     
