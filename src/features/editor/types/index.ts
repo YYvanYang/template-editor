@@ -17,6 +17,7 @@ export interface CanvasState {
 // 基础元素接口
 export interface BaseElement {
   id: string
+  name: string
   type: ElementType
   position: { x: number; y: number }
   size: { width: number; height: number }

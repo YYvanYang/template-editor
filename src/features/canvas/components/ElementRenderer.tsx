@@ -2,10 +2,10 @@ import React from 'react'
 import { Group, Rect, Text, Image, Transformer } from 'react-konva'
 import { useEditorStore } from '@/features/editor/stores/editor.store'
 import { useDragAndDropWithAlignment } from '../hooks/useDragAndDropWithAlignment'
-import type { BaseElementData } from '@/features/elements'
+import type { TemplateElement, TextElement, ImageElement, ShapeElement, BarcodeElement, QRCodeElement } from '@/features/editor/types'
 
 interface ElementRendererProps {
-  element: BaseElementData
+  element: TemplateElement
   isSelected: boolean
   onSelect: (id: string, multi: boolean) => void
 }
@@ -49,7 +49,7 @@ export const ElementRenderer: React.FC<ElementRendererProps> = ({
         x: node.x(),
         y: node.y(),
       }
-    })
+    } as any)
   }, [updateElement, element.id])
 
   const handleDragEnd = React.useCallback((e: any) => {
@@ -76,7 +76,7 @@ export const ElementRenderer: React.FC<ElementRendererProps> = ({
         height: Math.max(5, node.height() * scaleY),
       },
       rotation: node.rotation(),
-    })
+    } as any)
   }, [updateElement, element.id])
 
   // 处理点击
@@ -89,21 +89,23 @@ export const ElementRenderer: React.FC<ElementRendererProps> = ({
   const renderContent = () => {
     switch (element.type) {
       case 'text':
+        const textElement = element as TextElement
         return (
           <Text
-            text={element.content || 'Text'}
-            fontSize={element.style?.fontSize || 14}
-            fontFamily={element.style?.fontFamily || 'Arial'}
-            fill={element.style?.color || '#000000'}
+            text={textElement.content || 'Text'}
+            fontSize={textElement.style?.fontSize || 14}
+            fontFamily={textElement.style?.fontFamily || 'Arial'}
+            fill={textElement.style?.color || '#000000'}
             width={element.size.width}
             height={element.size.height}
-            align={element.style?.textAlign || 'left'}
-            verticalAlign={element.style?.verticalAlign || 'top'}
+            align={textElement.style?.textAlign || 'left'}
+            verticalAlign={textElement.style?.verticalAlign || 'top'}
           />
         )
 
       case 'image':
-        if (element.content) {
+        const imageElement = element as ImageElement
+        if (imageElement.src) {
           return (
             <Image
               image={undefined} // 需要加载图片
@@ -124,14 +126,15 @@ export const ElementRenderer: React.FC<ElementRendererProps> = ({
         )
 
       case 'shape':
+        const shapeElement = element as ShapeElement
         return (
           <Rect
             width={element.size.width}
             height={element.size.height}
-            fill={element.style?.backgroundColor || '#ffffff'}
-            stroke={element.style?.borderColor || '#000000'}
-            strokeWidth={element.style?.borderWidth || 1}
-            cornerRadius={element.style?.borderRadius || 0}
+            fill={shapeElement.style?.fill || '#ffffff'}
+            stroke={shapeElement.style?.stroke || '#000000'}
+            strokeWidth={shapeElement.style?.strokeWidth || 1}
+            cornerRadius={0}
           />
         )
 
@@ -244,7 +247,7 @@ export const ElementRenderer: React.FC<ElementRendererProps> = ({
 /**
  * 渲染所有元素的容器组件
  */
-export const ElementsRenderer: React.FC = () => {
+const ElementsRenderer: React.FC = () => {
   const { elements, selectedIds, selectElement, deselectElement, clearSelection } = useEditorStore()
 
   const handleSelect = React.useCallback((id: string, multi: boolean) => {
@@ -281,3 +284,6 @@ export const ElementsRenderer: React.FC = () => {
     </Group>
   )
 }
+
+// 导出两个组件
+export { ElementsRenderer }

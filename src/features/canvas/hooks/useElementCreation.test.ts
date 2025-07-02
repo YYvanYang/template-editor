@@ -11,109 +11,95 @@ vi.mock('@/features/elements/utils/element-factories', () => ({
     id: 'text-123',
     type: 'text',
     name: 'Text',
-    x: pos.x,
-    y: pos.y,
-    width: 200,
-    height: 50,
+    position: { x: pos.x, y: pos.y },
+    size: { width: 200, height: 50 },
     rotation: 0,
     locked: false,
     visible: true,
-    opacity: 1,
+    zIndex: 0,
     content: 'Test Text',
-    fontFamily: 'Arial',
-    fontSize: 16,
-    fontWeight: 'normal',
-    fontStyle: 'normal',
-    textAlign: 'left',
-    verticalAlign: 'top',
-    color: '#000000',
-    lineHeight: 1.2,
+    style: {
+      fontFamily: 'Arial',
+      fontSize: 16,
+      fontWeight: 'normal',
+      fontStyle: 'normal',
+      textAlign: 'left',
+      verticalAlign: 'top',
+      color: '#000000',
+      lineHeight: 1.2,
+    }
   })),
   createRectangleElement: vi.fn((pos) => ({
     id: 'rect-123',
     type: 'shape',
-    shapeType: 'rectangle',
+    shape: 'rectangle',
     name: 'Rectangle',
-    x: pos.x,
-    y: pos.y,
-    width: 100,
-    height: 100,
+    position: { x: pos.x, y: pos.y },
+    size: { width: 100, height: 100 },
     rotation: 0,
     locked: false,
     visible: true,
-    opacity: 1,
-    fill: '#ffffff',
-    stroke: '#000000',
-    strokeWidth: 1,
-    strokeDasharray: [],
-    cornerRadius: 0,
+    zIndex: 0,
+    style: {
+      fill: '#ffffff',
+      stroke: '#000000',
+      strokeWidth: 1,
+    }
   })),
   createImageElement: vi.fn((pos) => ({
     id: 'image-123',
     type: 'image',
     name: 'Image',
-    x: pos.x,
-    y: pos.y,
-    width: 200,
-    height: 150,
+    position: { x: pos.x, y: pos.y },
+    size: { width: 200, height: 150 },
     rotation: 0,
     locked: false,
     visible: true,
-    opacity: 1,
+    zIndex: 0,
     src: '',
     fit: 'contain',
-    crossOrigin: 'anonymous',
   })),
   createBarcodeElement: vi.fn((pos) => ({
     id: 'barcode-123',
     type: 'barcode',
     name: 'Barcode',
-    x: pos.x,
-    y: pos.y,
-    width: 200,
-    height: 80,
+    position: { x: pos.x, y: pos.y },
+    size: { width: 200, height: 80 },
     rotation: 0,
     locked: false,
     visible: true,
-    opacity: 1,
+    zIndex: 0,
     format: 'CODE128',
     value: '123456789',
-    showText: true,
-    textAlign: 'center',
-    textPosition: 'bottom',
-    textMargin: 2,
-    fontSize: 12,
-    background: '#ffffff',
-    lineColor: '#000000',
-    margin: 10,
-    marginTop: 10,
-    marginBottom: 10,
-    marginLeft: 10,
-    marginRight: 10,
+    style: {
+      showText: true,
+      textPosition: 'bottom',
+      textAlign: 'center',
+      fontSize: 12,
+      background: '#ffffff',
+      foreground: '#000000',
+    }
   })),
   createTableElement: vi.fn((pos) => ({
     id: 'table-123',
     type: 'table',
     name: 'Table',
-    x: pos.x,
-    y: pos.y,
-    width: 300,
-    height: 150,
+    position: { x: pos.x, y: pos.y },
+    size: { width: 300, height: 150 },
     rotation: 0,
     locked: false,
     visible: true,
-    opacity: 1,
+    zIndex: 0,
     rows: [],
     columns: [],
-    borderWidth: 1,
-    borderColor: '#000000',
-    borderStyle: 'solid',
-    cellPadding: 8,
-    cellSpacing: 0,
-    showHeader: true,
-    headerBackground: '#f0f0f0',
-    alternateRowBackground: false,
-    alternateRowColor: '#f9f9f9',
+    style: {
+      borderWidth: 1,
+      borderColor: '#000000',
+      borderStyle: 'solid',
+      cellPadding: 8,
+      cellSpacing: 0,
+      headerBackground: '#f0f0f0',
+    }
   })),
 }))
 
@@ -136,7 +122,11 @@ describe('useElementCreation', () => {
     const mockEvent = {
       target: {
         getStage: () => ({
-          getPointerPosition: () => ({ x: 100, y: 200 })
+          getPointerPosition: () => ({ x: 100, y: 200 }),
+          x: () => 0,
+          y: () => 0,
+          scaleX: () => 1,
+          scaleY: () => 1,
         })
       }
     } as unknown as KonvaEventObject<MouseEvent>
@@ -156,7 +146,11 @@ describe('useElementCreation', () => {
     const mockEvent = {
       target: {
         getStage: () => ({
-          getPointerPosition: () => ({ x: 100, y: 200 })
+          getPointerPosition: () => ({ x: 100, y: 200 }),
+          x: () => 0,
+          y: () => 0,
+          scaleX: () => 1,
+          scaleY: () => 1,
         })
       }
     } as unknown as KonvaEventObject<MouseEvent>
@@ -202,7 +196,11 @@ describe('useElementCreation', () => {
     const mockEvent = {
       target: {
         getStage: () => ({
-          getPointerPosition: () => ({ x: 100, y: 200 })
+          getPointerPosition: () => ({ x: 100, y: 200 }),
+          x: () => 0,
+          y: () => 0,
+          scaleX: () => 1,
+          scaleY: () => 1,
         })
       }
     } as unknown as KonvaEventObject<MouseEvent>
@@ -224,7 +222,11 @@ describe('useElementCreation', () => {
     const mockEvent = {
       target: {
         getStage: () => ({
-          getPointerPosition: () => ({ x: 100, y: 200 })
+          getPointerPosition: () => ({ x: 100, y: 200 }),
+          x: () => 0,
+          y: () => 0,
+          scaleX: () => 1,
+          scaleY: () => 1,
         })
       }
     } as unknown as KonvaEventObject<MouseEvent>
@@ -264,7 +266,11 @@ describe('useElementCreation', () => {
     const mockEvent = {
       target: {
         getStage: () => ({
-          getPointerPosition: () => ({ x: 250, y: 350 })
+          getPointerPosition: () => ({ x: 250, y: 350 }),
+          x: () => 0,
+          y: () => 0,
+          scaleX: () => 1,
+          scaleY: () => 1,
         })
       }
     } as unknown as KonvaEventObject<MouseEvent>
@@ -274,8 +280,8 @@ describe('useElementCreation', () => {
     })
     
     const element = useEditorStore.getState().elements.get('rect-123')
-    expect(element?.x).toBe(250)
-    expect(element?.y).toBe(350)
+    expect(element?.position.x).toBe(250)
+    expect(element?.position.y).toBe(350)
   })
 
 })

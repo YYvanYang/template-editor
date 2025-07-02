@@ -11,6 +11,7 @@ import { RulerAlignmentDebug } from '@/debug/RulerAlignmentDebug'
 import { RulerAlignmentTest } from '@/debug/RulerAlignmentTest'
 import { EnhancedRulerDebug } from '@/debug/EnhancedRulerDebug'
 import { SimpleCoordinateTest } from '@/debug/SimpleCoordinateTest'
+import { CanvasClickTest } from '@/debug/CanvasClickTest'
 
 function App() {
   // 获取选中的元素和更新函数
@@ -33,6 +34,7 @@ function App() {
   const isEnhancedDebugMode = window.location.search.includes('debug=enhanced');
   const isAlignmentDebugMode = window.location.search.includes('debug=alignment-debug');
   const isCoordTestMode = window.location.search.includes('debug=coord-test');
+  const isCanvasClickTestMode = window.location.search.includes('debug=canvas-click');
   
   if (isDebugMode) {
     return <RulerDebug />;
@@ -65,6 +67,27 @@ function App() {
   if (isCoordTestMode) {
     return <SimpleCoordinateTest />;
   }
+  
+  if (isCanvasClickTestMode) {
+    return (
+      <Layout>
+        <div className="flex-1 flex">
+          <aside className="w-12 bg-slate-900 border-r border-border"></aside>
+          <div className="flex-1 h-full">
+            <CanvasWithRulers showRulers={true} unit="mm" showDiagnostics={false} />
+          </div>
+          <aside className="w-80 bg-card border-l border-border overflow-y-auto">
+            <PropertyPanel 
+              element={selectedElement}
+              onPropertyChange={handlePropertyChange}
+            />
+          </aside>
+        </div>
+        <CanvasClickTest />
+      </Layout>
+    );
+  }
+  
   
   return (
     <>

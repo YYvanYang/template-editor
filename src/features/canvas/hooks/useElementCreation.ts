@@ -22,10 +22,16 @@ export function useElementCreation() {
 
       // Get click position
       const stage = e.target.getStage()
-      const pos = stage?.getPointerPosition()
+      const pointer = stage?.getPointerPosition()
       
-      if (!pos) {
+      if (!pointer || !stage) {
         return
+      }
+      
+      // Convert pointer position to canvas coordinates
+      const pos = {
+        x: (pointer.x - stage.x()) / stage.scaleX(),
+        y: (pointer.y - stage.y()) / stage.scaleY(),
       }
 
       // Clear current selection before creating new element
