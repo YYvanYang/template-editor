@@ -5,6 +5,7 @@ import { useEditorStore } from '@/features/editor/stores/editor.store'
 import { Grid } from './Grid'
 import { useCanvasEvents } from '../hooks/useCanvasEvents'
 import { useAlignment } from '../hooks/useAlignment'
+import { useElementCreation } from '../hooks/useElementCreation'
 import { AlignmentGuidesKonva } from './AlignmentGuidesKonva'
 import { ElementsRenderer } from './ElementRenderer'
 import { PerformancePanel } from './PerformancePanel'
@@ -144,6 +145,9 @@ export const Canvas: React.FC<CanvasProps> = ({ unit = 'mm' }) => {
 
   // 使用自定义钩子处理事件
   useCanvasEvents(stageRef)
+  
+  // 处理元素创建
+  const { handleCanvasClick } = useElementCreation()
 
   // 处理辅助线点击
   const handleGuideClick = useCallback((guideId: string) => {
@@ -175,6 +179,7 @@ export const Canvas: React.FC<CanvasProps> = ({ unit = 'mm' }) => {
         onWheel={handleWheel}
         onDragMove={handleDragMove}
         onDragEnd={handleDragEnd}
+        onClick={handleCanvasClick}
       >
         <Layer>
           {/* 画布背景 */}

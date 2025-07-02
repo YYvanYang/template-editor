@@ -135,6 +135,42 @@ describe('EditorStore', () => {
       expect(elements.size).toBe(0)
     })
 
+    it('should add element with auto-select option', () => {
+      const { addElement } = useEditorStore.getState()
+      
+      const element = {
+        id: 'test-1',
+        type: 'text' as const,
+        name: 'Text',
+        x: 10,
+        y: 20,
+        width: 100,
+        height: 50,
+        rotation: 0,
+        locked: false,
+        visible: true,
+        opacity: 1,
+        content: 'Test Text',
+        fontFamily: 'Arial',
+        fontSize: 16,
+        fontWeight: 'normal' as const,
+        fontStyle: 'normal' as const,
+        textAlign: 'left' as const,
+        verticalAlign: 'top' as const,
+        color: '#000000',
+        lineHeight: 1.2,
+      }
+      
+      // Add element with auto-select
+      addElement(element, { autoSelect: true })
+      
+      const { elements, selectedIds } = useEditorStore.getState()
+      expect(elements.size).toBe(1)
+      expect(elements.get('test-1')).toEqual(element)
+      expect(selectedIds.has('test-1')).toBe(true)
+      expect(selectedIds.size).toBe(1)
+    })
+
     it('should select and deselect elements', () => {
       const { selectElement, deselectElement, clearSelection } = useEditorStore.getState()
       

@@ -32,7 +32,7 @@ interface EditorActions {
   togglePerformanceMonitor: () => void
   
   // Element actions
-  addElement: (element: TemplateElement) => void
+  addElement: (element: TemplateElement, options?: { autoSelect?: boolean }) => void
   updateElement: (id: string, updates: ElementUpdate) => void
   deleteElement: (id: string) => void
   deleteSelectedElements: () => void
@@ -168,7 +168,7 @@ export const useEditorStore = create<EditorState & EditorActions>()(
           }),
 
         // Element actions
-        addElement: (element) =>
+        addElement: (element, options) =>
           set((state) => {
             // 保存历史
             state.history.past.push(createSnapshot(state))
@@ -176,6 +176,12 @@ export const useEditorStore = create<EditorState & EditorActions>()(
             
             // 添加元素
             state.elements.set(element.id, element)
+            
+            // 如果设置了自动选择，则选中新元素
+            if (options?.autoSelect) {
+              state.selectedIds.clear()
+              state.selectedIds.add(element.id)
+            }
           }),
 
         updateElement: (id, updates) =>
