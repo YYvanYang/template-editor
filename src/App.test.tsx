@@ -9,8 +9,8 @@ vi.mock('@/features/canvas/components/CanvasWithRulers', () => ({
   CanvasWithRulers: () => <div data-testid="canvas">Canvas</div>
 }))
 
-vi.mock('@/features/properties/components/PropertyPanelWrapper', () => ({
-  PropertyPanelWrapper: ({ element, onPropertyChange }: any) => (
+vi.mock('@/features/properties/components/PropertyPanelPro', () => ({
+  PropertyPanelPro: ({ element, onPropertyChange }: any) => (
     <div data-testid="property-panel">
       {element ? (
         <div>
@@ -30,10 +30,10 @@ vi.mock('@/features/properties/components/PropertyPanelWrapper', () => ({
 }))
 
 vi.mock('@/shared/components/Layout', () => ({
-  Layout: ({ children }: { children: React.ReactNode }) => <div>{children}</div>
+  FlexibleLayout: ({ children }: { children: React.ReactNode }) => <div>{children}</div>
 }))
 
-describe('App - PropertyPanelWrapper Integration', () => {
+describe('App - PropertyPanelPro Integration', () => {
   beforeEach(() => {
     // 重置 store
     useEditorStore.setState({

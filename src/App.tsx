@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { FlexibleLayout } from '@/shared/components/Layout'
 import { CanvasWithRulers } from '@/features/canvas/components/CanvasWithRulers'
-import { PropertyPanelWrapper } from '@/features/properties/components/PropertyPanelWrapper'
+import { PropertyPanelPro } from '@/features/properties/components/PropertyPanelPro'
 import { useEditorStore } from '@/features/editor/stores/editor.store'
 
 import { RulerDebug } from '@/debug/RulerDebug'
@@ -100,7 +100,7 @@ function App() {
           <div className="flex-1 h-full">
             <CanvasWithRulers showRulers={true} unit="mm" showDiagnostics={false} />
           </div>
-          <PropertyPanelWrapper 
+          <PropertyPanelPro 
             element={selectedElement}
             onPropertyChange={handlePropertyChange}
           />
@@ -134,19 +134,16 @@ function App() {
       <meta name="description" content="现代化的打印模板设计工具" />
       
       <FlexibleLayout>
-        {/* 主内容区域 - 使用flex布局 */}
-        <div className="flex h-full">
-          {/* 画布区域 - 自适应宽度 */}
-          <div className="flex-1 h-full">
-            <CanvasWithRulers showRulers={true} unit="mm" showDiagnostics={false} />
-          </div>
-          
-          {/* 右侧属性面板 - 包装器版本 */}
-          <PropertyPanelWrapper 
-            element={selectedElement}
-            onPropertyChange={handlePropertyChange}
-          />
+        {/* 画布区域 - 全宽布局 */}
+        <div className="w-full h-full">
+          <CanvasWithRulers showRulers={true} unit="mm" showDiagnostics={false} />
         </div>
+        
+        {/* 右侧属性面板 - Pro版本（绝对定位覆盖） */}
+        <PropertyPanelPro 
+          element={selectedElement}
+          onPropertyChange={handlePropertyChange}
+        />
       </FlexibleLayout>
     </>
   )

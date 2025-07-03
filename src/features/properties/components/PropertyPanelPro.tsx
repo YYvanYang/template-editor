@@ -72,12 +72,20 @@ export const PropertyPanelPro: React.FC<PropertyPanelProps> = ({
     }
   };
 
+  // 简化宽度计算
+  const BUTTON_WIDTH = 48;
+  const panelWidth = width - BUTTON_WIDTH;
+
   return (
-    <div 
+    <aside 
       className="absolute right-0 top-0 h-full transition-all duration-300 ease-in-out"
       style={{ 
-        width: Math.max(48, isOpen ? width : 48)
-      }}
+        width: isOpen ? width : BUTTON_WIDTH,
+        '--panel-width': `${panelWidth}px`,
+        '--button-width': `${BUTTON_WIDTH}px`
+      } as React.CSSProperties}
+      role="complementary"
+      aria-label="属性面板"
     >
       {/* 主面板 - 使用transform实现GPU加速动画 */}
       <div
@@ -86,8 +94,8 @@ export const PropertyPanelPro: React.FC<PropertyPanelProps> = ({
           'transition-transform duration-300 ease-in-out'
         )}
         style={{ 
-          width: width - 48, // 减去按钮宽度
-          transform: isOpen ? 'translateX(0)' : `translateX(${width - 48}px)`
+          width: panelWidth,
+          transform: isOpen ? 'translateX(0)' : `translateX(${panelWidth}px)`
         }}
       >
       {/* 面板头部 - 参考 Figma 的设计 */}
@@ -198,23 +206,38 @@ export const PropertyPanelPro: React.FC<PropertyPanelProps> = ({
       </ScrollArea>
       </div>
 
-      {/* 切换按钮 - 始终可见，位于面板右侧 */}
-      <div className="absolute right-0 top-0 w-12 h-full flex items-center justify-center border-l border-border bg-background">
+      {/* 切换按钮 - 优化定位和z-index */}
+      <div 
+        className={cn(
+          "absolute right-0 top-0 flex items-center justify-center",
+          "border-l border-border bg-background/95 backdrop-blur-sm",
+          "transition-all duration-300 ease-in-out",
+          "z-50 shadow-lg" // 确保按钮在最上层
+        )}
+        style={{
+          width: BUTTON_WIDTH,
+          height: '100%'
+        }}
+      >
         <Button
           variant="ghost"
           size="icon"
           onClick={togglePanel}
-          className="h-full w-full rounded-none hover:bg-muted/50"
+          className={cn(
+            "h-full w-full rounded-none transition-colors duration-200",
+            "hover:bg-muted/50 active:bg-muted/70",
+            "focus-visible:ring-2 focus-visible:ring-primary/50"
+          )}
           title={isOpen ? "收起属性面板" : "展开属性面板"}
         >
           {isOpen ? (
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="h-4 w-4 transition-transform duration-200" />
           ) : (
-            <ChevronRight className="h-4 w-4 rotate-180" />
+            <ChevronRight className="h-4 w-4 rotate-180 transition-transform duration-200" />
           )}
         </Button>
       </div>
-    </div>
+    </aside>
   );
 };
 
