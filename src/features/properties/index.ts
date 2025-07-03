@@ -1,5 +1,4 @@
 // Components
-export { PropertyPanel } from './components/PropertyPanel';
 export { PropertyEditor } from './components/PropertyEditor';
 
 // Types
