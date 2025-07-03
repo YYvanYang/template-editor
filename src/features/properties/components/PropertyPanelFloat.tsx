@@ -16,7 +16,7 @@ import {
   searchProperties,
 } from '../utils/property.utils';
 import type { PropertyPanelProps, PropertyDefinition } from '../types/property.types';
-import type { BaseElementData } from '@/features/elements/types/base.types';
+import type { TemplateElement } from '@/types/unified.types';
 
 /**
  * 浮动属性面板组件
@@ -218,7 +218,7 @@ export const PropertyPanelFloat: React.FC<PropertyPanelProps> = ({
  * 属性项组件
  */
 interface PropertyItemProps {
-  element: BaseElementData;
+  element: TemplateElement;
   property: PropertyDefinition;
   value: any;
   onChange: (value: any) => void;
