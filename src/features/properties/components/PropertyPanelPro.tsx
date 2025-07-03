@@ -72,30 +72,35 @@ export const PropertyPanelPro: React.FC<PropertyPanelProps> = ({
     }
   };
 
-  if (!isOpen) {
-    return (
-      <div className="w-12 bg-background border-l border-border flex items-center justify-center">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={togglePanel}
-          className="rounded-none h-full"
-          title="展开属性面板"
-        >
-          <ChevronRight className="h-4 w-4" />
-        </Button>
-      </div>
-    );
-  }
-
   return (
-    <div
-      className={cn(
-        'flex flex-col bg-background border-l border-border h-full',
-        'transition-all duration-200 shadow-xl'
-      )}
-      style={{ width }}
-    >
+    <div className="flex h-full">
+      {/* 收起状态的侧边栏 */}
+      <div className={cn(
+        "bg-background border-l border-border transition-all duration-200",
+        isOpen ? "w-0 overflow-hidden" : "w-12"
+      )}>
+        {!isOpen && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={togglePanel}
+            className="rounded-none h-full w-full"
+            title="展开属性面板"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        )}
+      </div>
+
+      {/* 主面板 */}
+      <div
+        className={cn(
+          'flex flex-col bg-background border-l border-border h-full',
+          'transition-all duration-200 shadow-xl',
+          !isOpen && 'w-0 overflow-hidden'
+        )}
+        style={{ width: isOpen ? width : 0 }}
+      >
       {/* 面板头部 - 参考 Figma 的设计 */}
       <div className="flex items-center justify-between h-12 px-4 border-b border-border bg-muted/30">
         <h3 className="font-medium text-sm text-foreground select-none">属性</h3>
@@ -202,6 +207,7 @@ export const PropertyPanelPro: React.FC<PropertyPanelProps> = ({
           )}
         </div>
       </ScrollArea>
+      </div>
     </div>
   );
 };

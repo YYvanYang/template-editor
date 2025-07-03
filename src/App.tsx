@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { FlexibleLayout } from '@/shared/components/Layout'
 import { CanvasWithRulers } from '@/features/canvas/components/CanvasWithRulers'
-import { PropertyPanelPro } from '@/features/properties/components/PropertyPanelPro'
+import { PropertyPanelFixed } from '@/features/properties/components/PropertyPanelFixed'
 import { useEditorStore } from '@/features/editor/stores/editor.store'
 import { RulerDebug } from '@/debug/RulerDebug'
 import { CanvasRulerDebug } from '@/debug/CanvasRulerDebug'
@@ -97,7 +97,7 @@ function App() {
           <div className="flex-1 h-full">
             <CanvasWithRulers showRulers={true} unit="mm" showDiagnostics={false} />
           </div>
-          <PropertyPanelPro 
+          <PropertyPanelFixed 
             element={selectedElement}
             onPropertyChange={handlePropertyChange}
           />
@@ -137,7 +137,7 @@ function App() {
         </div>
         
         {/* 右侧属性面板 */}
-        <PropertyPanelPro 
+        <PropertyPanelFixed 
           element={selectedElement}
           onPropertyChange={handlePropertyChange}
         />
