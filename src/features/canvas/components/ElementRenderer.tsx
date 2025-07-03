@@ -2,7 +2,12 @@ import React from 'react'
 import { Group, Rect, Text, Image, Transformer } from 'react-konva'
 import { useEditorStore } from '@/features/editor/stores/editor.store'
 import { useDragAndDropWithAlignment } from '../hooks/useDragAndDropWithAlignment'
-import type { TemplateElement, TextElement, ImageElement, ShapeElement, BarcodeElement, QRCodeElement } from '@/features/editor/types'
+import type { 
+  TemplateElement, 
+  TextElement, 
+  ImageElement, 
+  ShapeElement
+} from '@/types/unified.types'
 
 interface ElementRendererProps {
   element: TemplateElement
@@ -52,7 +57,7 @@ export const ElementRenderer: React.FC<ElementRendererProps> = ({
     } as any)
   }, [updateElement, element.id])
 
-  const handleDragEnd = React.useCallback((e: any) => {
+  const handleDragEnd = React.useCallback((_e: any) => {
     dragAndDrop.endDrag()
   }, [dragAndDrop])
 

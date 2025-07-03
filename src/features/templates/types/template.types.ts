@@ -2,7 +2,7 @@
  * 模板类型定义
  */
 
-import { BaseElement } from '@/features/elements/types';
+import { TemplateElement } from '@/types/unified.types';
 
 /**
  * 模板版本号
@@ -112,7 +112,7 @@ export interface TemplateVariable {
  * 模板内容
  */
 export interface TemplateContent {
-  elements: BaseElement[];
+  elements: TemplateElement[];
   variables?: TemplateVariable[];
   dataSources?: DataSource[];
 }

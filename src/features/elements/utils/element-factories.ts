@@ -1,3 +1,4 @@
+import { generateId } from '@/types/unified.types'
 import type { 
   TextElement, 
   ShapeElement, 
@@ -7,15 +8,7 @@ import type {
   QRCodeElement,
   TableRow,
   TableColumn
-} from '@/features/editor/types'
-
-/**
- * 生成唯一ID
- */
-let idCounter = 0
-function generateId(prefix: string): string {
-  return `${prefix}-${Date.now()}-${++idCounter}`
-}
+} from '@/types/unified.types'
 
 /**
  * 创建文本元素
@@ -64,8 +57,7 @@ export function createRectangleElement(position: { x: number; y: number }): Shap
       fill: '#ffffff',
       stroke: '#000000',
       strokeWidth: 1,
-      strokeDasharray: '',
-      opacity: 1,
+      strokeDasharray: ''
     }
   }
 }
@@ -156,6 +148,11 @@ export function createTableElement(
       borderColor: '#000000',
       borderStyle: 'solid',
       cellPadding: 8,
+      cellSpacing: 0,
+      headerBackground: '#f5f5f5',
+      headerColor: '#000000',
+      rowBackground: '#ffffff',
+      alternateRowBackground: '#fafafa',
     }
   }
 }

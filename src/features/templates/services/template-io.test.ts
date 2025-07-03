@@ -65,13 +65,13 @@ describe('TemplateIO', () => {
       });
       
       expect(result).toBeInstanceOf(Blob);
-      expect(result.type).toBe('application/json');
+      expect((result as Blob).type).toBe('application/json');
       
       // 读取 Blob 内容
       const text = await new Promise<string>((resolve) => {
         const reader = new FileReader();
         reader.onload = () => resolve(reader.result as string);
-        reader.readAsText(result);
+        reader.readAsText(result as Blob);
       });
       const data = JSON.parse(text);
       expect(data.__type).toBe('template');
@@ -89,7 +89,7 @@ describe('TemplateIO', () => {
       const text = await new Promise<string>((resolve) => {
         const reader = new FileReader();
         reader.onload = () => resolve(reader.result as string);
-        reader.readAsText(result);
+        reader.readAsText(result as Blob);
       });
       // 压缩后的数据不应该是有效的 JSON
       expect(() => JSON.parse(text)).toThrow();

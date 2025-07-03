@@ -28,8 +28,6 @@ export const Canvas: React.FC<CanvasProps> = ({ unit = 'mm' }) => {
   
   const {
     canvas,
-    elements,
-    selectedIds,
     template,
     activeTool,
     setZoom,
@@ -47,7 +45,6 @@ export const Canvas: React.FC<CanvasProps> = ({ unit = 'mm' }) => {
       showCenterGuides: true,
       showEdgeGuides: true,
     },
-    performanceMonitor,
   })
 
   // 处理鼠标滚轮缩放

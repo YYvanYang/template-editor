@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 
 export const SimpleCoordinateTest: React.FC = () => {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });

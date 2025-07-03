@@ -13,8 +13,10 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           <h1 className="text-xl font-semibold">模板编辑器</h1>
           {/* 后续添加更多头部功能 */}
         </div>
-        <Toolbar />
       </header>
+      
+      {/* 工具栏放在头部下方 */}
+      <Toolbar />
       
       <main role="main" className="flex-1 flex overflow-hidden">
         {children}

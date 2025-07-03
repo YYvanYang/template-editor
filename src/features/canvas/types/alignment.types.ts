@@ -139,6 +139,8 @@ export interface ElementBounds {
  * 动态辅助线（拖拽时显示）
  */
 export interface DynamicGuide {
+  /** 唯一标识 */
+  id?: string;
   /** 方向 */
   orientation: GuideOrientation;
   /** 位置 */
@@ -148,7 +150,12 @@ export interface DynamicGuide {
   /** 结束点 */
   end: number;
   /** 类型 */
-  type: 'element' | 'canvas';
+  type: 'element' | 'canvas' | 'spacing';
   /** 相关元素ID列表 */
   relatedElements?: string[];
+  /** 元数据 */
+  metadata?: {
+    spacing?: number;
+    [key: string]: any;
+  };
 }

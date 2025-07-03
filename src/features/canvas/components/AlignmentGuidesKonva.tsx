@@ -1,5 +1,5 @@
 import React, { useMemo, useCallback } from 'react';
-import { Group, Line, Rect, Text } from 'react-konva';
+import { Group, Line, Rect, Text, Circle } from 'react-konva';
 import type { GuideLine, DynamicGuide } from '../types/alignment.types';
 
 interface AlignmentGuidesKonvaProps {
@@ -61,7 +61,7 @@ const GUIDE_STYLES = {
   dynamic: {
     stroke: '#3B82F6',
     strokeWidth: 1,
-    dash: null,
+    dash: undefined,
     opacity: 1,
   },
   spacing: {
@@ -141,7 +141,7 @@ export const AlignmentGuidesKonva: React.FC<AlignmentGuidesKonvaProps> = ({
           points={points}
           stroke={style.stroke}
           strokeWidth={style.strokeWidth}
-          dash={style.dash}
+          dash={style.dash || undefined}
           opacity={style.opacity}
           hitStrokeWidth={10} // 增加点击区域
           onClick={() => onGuideClick?.(guide.id)}
@@ -203,7 +203,7 @@ export const AlignmentGuidesKonva: React.FC<AlignmentGuidesKonvaProps> = ({
           points={points}
           stroke={style.stroke}
           strokeWidth={style.strokeWidth}
-          dash={style.dash}
+          dash={style.dash || undefined}
           opacity={style.opacity}
           listening={false}
         />
@@ -275,7 +275,7 @@ export const AlignmentGuidesKonva: React.FC<AlignmentGuidesKonvaProps> = ({
           points={[0, 0, canvasSize.width, 0]}
           stroke={style.stroke}
           strokeWidth={style.strokeWidth}
-          dash={style.dash}
+          dash={style.dash || undefined}
           opacity={style.opacity * 0.5}
           listening={false}
         />
@@ -284,7 +284,7 @@ export const AlignmentGuidesKonva: React.FC<AlignmentGuidesKonvaProps> = ({
           points={[0, canvasSize.height, canvasSize.width, canvasSize.height]}
           stroke={style.stroke}
           strokeWidth={style.strokeWidth}
-          dash={style.dash}
+          dash={style.dash || undefined}
           opacity={style.opacity * 0.5}
           listening={false}
         />
@@ -293,7 +293,7 @@ export const AlignmentGuidesKonva: React.FC<AlignmentGuidesKonvaProps> = ({
           points={[0, 0, 0, canvasSize.height]}
           stroke={style.stroke}
           strokeWidth={style.strokeWidth}
-          dash={style.dash}
+          dash={style.dash || undefined}
           opacity={style.opacity * 0.5}
           listening={false}
         />
@@ -302,7 +302,7 @@ export const AlignmentGuidesKonva: React.FC<AlignmentGuidesKonvaProps> = ({
           points={[canvasSize.width, 0, canvasSize.width, canvasSize.height]}
           stroke={style.stroke}
           strokeWidth={style.strokeWidth}
-          dash={style.dash}
+          dash={style.dash || undefined}
           opacity={style.opacity * 0.5}
           listening={false}
         />
@@ -328,5 +328,3 @@ export const AlignmentGuidesKonva: React.FC<AlignmentGuidesKonvaProps> = ({
   );
 };
 
-// 添加 Circle 组件的导入
-import { Circle } from 'react-konva';

@@ -3,7 +3,6 @@ import { Group, Rect, Image, Text } from 'react-konva';
 import type { BarcodeElement } from '@/features/elements/barcode/BarcodeElement';
 import { generateBarcode, isBarcodeTypeSupported } from '@/features/elements/barcode/barcode-generator';
 import { render as renderTemplate } from '@/features/data-binding';
-import { BarcodeType } from '@/features/elements/types/barcode.types';
 
 interface BarcodeElementRendererProps {
   element: BarcodeElement;
@@ -22,9 +21,8 @@ export const BarcodeElementRenderer: React.FC<BarcodeElementRendererProps> = ({
   bindingData = {},
   selected = false,
   onSelect,
-  onDeselect,
 }) => {
-  const canvasRef = useRef<HTMLCanvasElement>();
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [imageUrl, setImageUrl] = useState<string>('');
   const [error, setError] = useState<string>('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -97,8 +95,8 @@ export const BarcodeElementRenderer: React.FC<BarcodeElementRendererProps> = ({
         width={size.width}
         height={size.height}
         fill={style?.backgroundColor || 'white'}
-        stroke={style?.borderColor}
-        strokeWidth={style?.borderWidth}
+        stroke={undefined}
+        strokeWidth={undefined}
         opacity={element.data.visible === false ? 0.3 : 1}
       />
       

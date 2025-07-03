@@ -32,6 +32,17 @@ export default defineConfig({
     },
   },
   
+  // Worker 配置
+  worker: {
+    format: 'es',
+    rollupOptions: {
+      output: {
+        // Worker 文件输出到独立目录
+        entryFileNames: 'workers/[name].[hash].js'
+      }
+    }
+  },
+  
   server: {
     port: 3000,
     open: true,

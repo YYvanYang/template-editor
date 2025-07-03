@@ -15,7 +15,7 @@ export const RulerTest: React.FC = () => {
           unit="mm"
           canvasSize={{ width: 210, height: 297 }}
           viewport={{ x: 0, y: 0, scale: 1 }}
-          mousePosition={null}
+          mousePosition={undefined}
         />
       </div>
 
@@ -29,7 +29,7 @@ export const RulerTest: React.FC = () => {
             unit="mm"
             canvasSize={{ width: 210, height: 297 }}
             viewport={{ x: 0, y: 0, scale: 1 }}
-            mousePosition={null}
+            mousePosition={undefined}
           />
         </div>
       </div>

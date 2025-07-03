@@ -1,9 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen, act, waitFor } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import React from 'react'
 import { Canvas } from './Canvas'
 import { useEditorStore } from '@/features/editor/stores/editor.store'
-import { useAlignment } from '../hooks/useAlignment'
 
 // Mock Konva
 // 使用 div 元素替代 Konva 组件以避免 JSDOM 环境限制
@@ -169,7 +168,7 @@ describe('Canvas', () => {
       flush: () => {
         const callbacks = Array.from(rafMock.callbacks.values())
         rafMock.callbacks.clear()
-        callbacks.forEach(cb => cb())
+        callbacks.forEach((cb: any) => cb())
       }
     }
     global.requestAnimationFrame = rafMock.requestAnimationFrame
@@ -304,7 +303,7 @@ describe('Canvas', () => {
   })
 
   describe('Drag functionality', () => {
-    it('should have drag event handlers', async () => {
+    it('should have drag event handlers when HAND tool is active', async () => {
       const setOffset = vi.fn()
       
       vi.mocked(useEditorStore).mockReturnValue({
@@ -329,6 +328,7 @@ describe('Canvas', () => {
         },
         elements: new Map(),
         selectedIds: new Set(),
+        activeTool: 'hand', // Add HAND tool active
         setZoom: vi.fn(),
         setOffset,
       } as any)
@@ -409,6 +409,7 @@ describe('Canvas', () => {
         },
         elements: new Map(),
         selectedIds: new Set(),
+        activeTool: 'hand', // Add HAND tool active
         setZoom: vi.fn(),
         setOffset,
       } as any)

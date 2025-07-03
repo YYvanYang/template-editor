@@ -25,7 +25,6 @@ export const RulerWithGuides: React.FC<RulerWithGuidesProps> = (props) => {
     textColor = DEFAULT_RULER_CONFIG.textColor!,
     tickColor = DEFAULT_RULER_CONFIG.tickColor!,
     fontSize = DEFAULT_RULER_CONFIG.fontSize!,
-    canvasSize,
     viewport,
     mousePosition,
     onClick,
@@ -96,7 +95,6 @@ export const RulerWithGuides: React.FC<RulerWithGuidesProps> = (props) => {
 
     // Calculate visible range
     const unitPx = convertUnit(1, unit, 'px');
-    const zoomUnit = unitPx * actualScale;
     
     const minValue = -actualOffset / actualScale / unitPx;
     const maxValue = (-actualOffset + length) / actualScale / unitPx;
@@ -332,7 +330,7 @@ export const RulerWithGuides: React.FC<RulerWithGuidesProps> = (props) => {
   }, [orientation, isDragging, guides, rulerValueToScreen]);
 
   // Handle mouse up (end drag)
-  const handleMouseUp = useCallback((event: React.MouseEvent<HTMLCanvasElement>) => {
+  const handleMouseUp = useCallback((_event: React.MouseEvent<HTMLCanvasElement>) => {
     if (!isDragging || !onCreateGuide || dragPosition === null) return;
 
     const value = screenToRulerValue(dragPosition);
@@ -344,6 +342,7 @@ export const RulerWithGuides: React.FC<RulerWithGuidesProps> = (props) => {
     alignment.addManualGuide({
       orientation: orientation === 'horizontal' ? 'vertical' : 'horizontal',
       position: snappedValue * convertUnit(1, unit, 'px'),
+      type: 'manual',
       visible: true,
     });
 

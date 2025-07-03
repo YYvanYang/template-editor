@@ -3,7 +3,7 @@
  */
 
 import { Template, TEMPLATE_VERSION, TemplateValidationResult } from '../types/template.types';
-import { BaseElement } from '@/features/elements/types';
+import { TemplateElement, BaseElement } from '@/types/unified.types';
 import { nanoid } from 'nanoid';
 
 /**
@@ -164,7 +164,7 @@ export class TemplateSerializer {
   /**
    * 还原元素对象
    */
-  private static restoreElements(elements: any[]): BaseElement[] {
+  private static restoreElements(elements: any[]): TemplateElement[] {
     return elements.map(element => {
       // 确保每个元素都有必需的属性
       if (!element.id) {

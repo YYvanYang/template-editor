@@ -1,5 +1,4 @@
 import { useEffect, useCallback } from 'react';
-import { ToolType } from '../types/toolbar.types';
 import { getShortcutMap } from '../config/toolbar.config';
 import { useEditorStore } from '@/features/editor/stores/editor.store';
 

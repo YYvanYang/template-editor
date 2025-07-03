@@ -14,7 +14,7 @@
 
 import React, { useMemo, useCallback } from 'react';
 import type { RulerProps } from '../types/ruler.types';
-import { DEFAULT_RULER_CONFIG, UNIT_CONVERSIONS } from '../types/ruler.types';
+import { DEFAULT_RULER_CONFIG } from '../types/ruler.types';
 import { calculateTicks, getMouseValue, formatLabel } from '../utils/ruler.utils';
 
 /**
@@ -33,7 +33,6 @@ export const Ruler: React.FC<RulerProps> = (props) => {
     textColor = DEFAULT_RULER_CONFIG.textColor!,
     tickColor = DEFAULT_RULER_CONFIG.tickColor!,
     fontSize = DEFAULT_RULER_CONFIG.fontSize!,
-    canvasSize,
     viewport,
     mousePosition,
     onClick,

@@ -12,13 +12,10 @@ export const RulerCanvas: React.FC<RulerProps> = (props) => {
     length,
     thickness = DEFAULT_RULER_CONFIG.thickness!,
     unit = DEFAULT_RULER_CONFIG.unit!,
-    scale = DEFAULT_RULER_CONFIG.scale!,
-    offset = DEFAULT_RULER_CONFIG.offset!,
     backgroundColor = DEFAULT_RULER_CONFIG.backgroundColor!,
     textColor = DEFAULT_RULER_CONFIG.textColor!,
     tickColor = DEFAULT_RULER_CONFIG.tickColor!,
     fontSize = DEFAULT_RULER_CONFIG.fontSize!,
-    canvasSize,
     viewport,
     mousePosition,
     onClick,
@@ -26,10 +23,14 @@ export const RulerCanvas: React.FC<RulerProps> = (props) => {
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const contextRef = useRef<CanvasRenderingContext2D | null>(null);
-  const animationFrameRef = useRef<number>();
+  const animationFrameRef = useRef<number | undefined>(undefined);
 
   // 获取设备像素比
   const devicePixelRatio = window.devicePixelRatio || 1;
+  
+  // 从 viewport 获取缩放比例（如果需要的话，可以在后续使用中取消注释）
+  // const scale = viewport?.scale || 1;
+  // const offset = viewport ? { x: viewport.x, y: viewport.y } : { x: 0, y: 0 };
 
   // 计算画布实际尺寸
   const canvasWidth = orientation === 'horizontal' ? length : thickness;
@@ -61,8 +62,8 @@ export const RulerCanvas: React.FC<RulerProps> = (props) => {
     const pixelsPerUnit = unitConfig.toPx * viewport.scale;
     
     // 动态计算刻度间隔
-    let minorInterval = unitConfig.minorInterval;
-    let majorInterval = unitConfig.majorInterval;
+    let minorInterval: number = unitConfig.minorInterval;
+    let majorInterval: number = unitConfig.majorInterval;
     let subMinorInterval = 0; // 更小的刻度（如0.5mm）
     
     if (unit === 'mm') {

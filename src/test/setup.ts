@@ -66,8 +66,7 @@ const createMockContext = () => ({
 // Create a properly typed mock function for getContext
 const getContextMock = vi.fn(function(
   this: HTMLCanvasElement,
-  contextId: string,
-  options?: any
+  contextId: string
 ): RenderingContext | null {
   if (contextId === '2d') {
     const ctx = createMockContext()

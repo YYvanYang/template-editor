@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState } from 'react';
 import { useEditorStore } from '@/features/editor/stores/editor.store';
 import { CanvasWithRulers } from '@/features/canvas/components/CanvasWithRulers';
 

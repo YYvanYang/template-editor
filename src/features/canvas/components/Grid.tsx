@@ -9,12 +9,12 @@ interface GridProps {
   unit?: 'mm' | 'cm' | 'px'
 }
 
-export const Grid: React.FC<GridProps> = ({ zoom, size, offset, unit = 'mm' }) => {
+export const Grid: React.FC<GridProps> = ({ zoom, size, unit = 'mm' }) => {
   const unitConfig = UNIT_CONVERSIONS[unit]
   const strokeWidth = 1 / zoom // 保持线条粗细不变
   
   // 根据单位和缩放级别动态调整网格间隔
-  let gridInterval = unitConfig.minorInterval // 默认使用次要刻度间隔
+  let gridInterval: number = unitConfig.minorInterval // 默认使用次要刻度间隔
   
   if (unit === 'mm') {
     const pixelsPerMm = unitConfig.toPx * zoom

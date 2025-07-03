@@ -119,6 +119,10 @@ export const RulerAlignmentTest: React.FC = () => {
               thickness={rulerThickness}
               unit="mm"
               viewport={viewport}
+              canvasSize={{
+                width: containerWidth - rulerThickness,
+                height: containerHeight - rulerThickness
+              }}
               mousePosition={mousePosition ? { x: mousePosition.x - rulerThickness, y: 0 } : undefined}
             />
           </div>
@@ -139,6 +143,10 @@ export const RulerAlignmentTest: React.FC = () => {
               thickness={rulerThickness}
               unit="mm"
               viewport={viewport}
+              canvasSize={{
+                width: containerWidth - rulerThickness,
+                height: containerHeight - rulerThickness
+              }}
               mousePosition={mousePosition ? { x: 0, y: mousePosition.y - rulerThickness } : undefined}
             />
           </div>

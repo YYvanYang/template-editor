@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { useEditorStore } from '@/features/editor/stores/editor.store'
-import { ToolType } from '@/features/toolbar/types/toolbar.types'
 
 export const CanvasClickTest: React.FC = () => {
   const [logs, setLogs] = useState<string[]>([])

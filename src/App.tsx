@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { Layout } from '@/shared/components/Layout'
+import { FlexibleLayout } from '@/shared/components/Layout'
 import { CanvasWithRulers } from '@/features/canvas/components/CanvasWithRulers'
 import { PropertyPanel } from '@/features/properties/components/PropertyPanel'
 import { useEditorStore } from '@/features/editor/stores/editor.store'
@@ -12,18 +12,36 @@ import { RulerAlignmentTest } from '@/debug/RulerAlignmentTest'
 import { EnhancedRulerDebug } from '@/debug/EnhancedRulerDebug'
 import { SimpleCoordinateTest } from '@/debug/SimpleCoordinateTest'
 import { CanvasClickTest } from '@/debug/CanvasClickTest'
+import { ToolbarTest } from '@/debug/ToolbarTest'
+import { LayoutTest } from '@/debug/LayoutTest'
+import { IndustryStandardTest } from '@/debug/IndustryStandardTest'
+import { SeparatorTest } from '@/debug/SeparatorTest'
 
 function App() {
   // 获取选中的元素和更新函数
-  const selectedElement = useEditorStore(state => state.selectedElement())
+  const selectedElement = useEditorStore(state => state.getSelectedElement())
   const updateElement = useEditorStore(state => state.updateElement)
   
   // 优化 PropertyPanel 的回调，避免不必要的重渲染
   const handlePropertyChange = useCallback((key: string, value: any) => {
     if (selectedElement) {
-      updateElement(selectedElement.id, { [key]: value })
+      // 处理嵌套属性的更新
+      if (key.includes('.')) {
+        const [parentKey, childKey] = key.split('.')
+        const currentValue = selectedElement[parentKey as keyof typeof selectedElement]
+        if (typeof currentValue === 'object' && currentValue !== null) {
+          updateElement(selectedElement.id, {
+            [parentKey]: {
+              ...currentValue,
+              [childKey]: value
+            }
+          })
+        }
+      } else {
+        updateElement(selectedElement.id, { [key]: value })
+      }
     }
-  }, [selectedElement?.id, updateElement])
+  }, [selectedElement, updateElement])
   
   // 临时添加调试模式
   const isDebugMode = window.location.search.includes('debug=ruler');
@@ -35,6 +53,10 @@ function App() {
   const isAlignmentDebugMode = window.location.search.includes('debug=alignment-debug');
   const isCoordTestMode = window.location.search.includes('debug=coord-test');
   const isCanvasClickTestMode = window.location.search.includes('debug=canvas-click');
+  const isToolbarTestMode = window.location.search.includes('debug=toolbar');
+  const isLayoutTestMode = window.location.search.includes('debug=layout');
+  const isIndustryStandardMode = window.location.search.includes('debug=industry');
+  const isSeparatorTestMode = window.location.search.includes('debug=separator');
   
   if (isDebugMode) {
     return <RulerDebug />;
@@ -70,9 +92,8 @@ function App() {
   
   if (isCanvasClickTestMode) {
     return (
-      <Layout>
+      <FlexibleLayout>
         <div className="flex-1 flex">
-          <aside className="w-12 bg-slate-900 border-r border-border"></aside>
           <div className="flex-1 h-full">
             <CanvasWithRulers showRulers={true} unit="mm" showDiagnostics={false} />
           </div>
@@ -84,8 +105,24 @@ function App() {
           </aside>
         </div>
         <CanvasClickTest />
-      </Layout>
+      </FlexibleLayout>
     );
+  }
+  
+  if (isToolbarTestMode) {
+    return <ToolbarTest />;
+  }
+  
+  if (isLayoutTestMode) {
+    return <LayoutTest />;
+  }
+  
+  if (isIndustryStandardMode) {
+    return <IndustryStandardTest />;
+  }
+  
+  if (isSeparatorTestMode) {
+    return <SeparatorTest />;
   }
   
   
@@ -95,13 +132,7 @@ function App() {
       <title>菜鸟模板编辑器</title>
       <meta name="description" content="现代化的打印模板设计工具" />
       
-      <Layout>
-      <div className="flex-1 flex">
-        {/* 左侧工具栏 */}
-        <aside className="w-12 bg-slate-900 border-r border-border">
-          {/* 后续添加工具图标 */}
-        </aside>
-        
+      <FlexibleLayout>
         {/* 中间画布区域 */}
         <div className="flex-1 h-full">
           <CanvasWithRulers showRulers={true} unit="mm" showDiagnostics={false} />
@@ -114,8 +145,7 @@ function App() {
             onPropertyChange={handlePropertyChange}
           />
         </aside>
-      </div>
-    </Layout>
+      </FlexibleLayout>
     </>
   )
 }

@@ -34,7 +34,6 @@ export const CanvasRuler: React.FC<RulerProps> = (props) => {
     textColor = DEFAULT_RULER_CONFIG.textColor!,
     tickColor = DEFAULT_RULER_CONFIG.tickColor!,
     fontSize = DEFAULT_RULER_CONFIG.fontSize!,
-    canvasSize,
     viewport,
     mousePosition,
     onClick,
@@ -84,7 +83,6 @@ export const CanvasRuler: React.FC<RulerProps> = (props) => {
 
     // Calculate visible range
     const unitPx = convertUnit(1, unit, 'px');
-    const zoomUnit = unitPx * actualScale;
     
     // Calculate the range of values that should be visible
     const minValue = -actualOffset / actualScale / unitPx;

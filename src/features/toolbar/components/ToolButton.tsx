@@ -13,6 +13,8 @@ interface ToolButtonProps {
   disabled?: boolean;
   separator?: boolean;
   className?: string;
+  iconOnly?: boolean;
+  vertical?: boolean; // 新增：是否为垂直布局
   onClick?: () => void;
 }
 
@@ -27,6 +29,8 @@ export const ToolButton: React.FC<ToolButtonProps> = ({
   disabled = false,
   separator = false,
   className,
+  iconOnly = false,
+  vertical = false,
   onClick,
 }) => {
   return (
@@ -55,7 +59,12 @@ export const ToolButton: React.FC<ToolButtonProps> = ({
       {separator && (
         <div
           data-separator="true"
-          className="w-px h-6 bg-border mx-1"
+          className={cn(
+            "bg-border",
+            vertical 
+              ? "h-px w-6 my-1" // 垂直布局：横线分隔符
+              : "w-px h-6 mx-1"  // 水平布局：竖线分隔符
+          )}
           aria-hidden="true"
         />
       )}

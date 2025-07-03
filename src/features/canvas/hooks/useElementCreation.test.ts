@@ -173,7 +173,11 @@ describe('useElementCreation', () => {
     const mockEvent = {
       target: {
         getStage: () => ({
-          getPointerPosition: () => ({ x: 50, y: 100 })
+          getPointerPosition: () => ({ x: 50, y: 100 }),
+          x: () => 0,
+          y: () => 0,
+          scaleX: () => 1,
+          scaleY: () => 1,
         })
       }
     } as unknown as KonvaEventObject<MouseEvent>

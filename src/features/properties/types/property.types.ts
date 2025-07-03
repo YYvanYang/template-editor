@@ -1,4 +1,4 @@
-import type { BaseElementData } from '@/features/elements/types/base.types';
+import type { TemplateElement } from '@/types/unified.types';
 
 /**
  * 属性编辑器类型
@@ -35,8 +35,8 @@ export interface PropertyDefinition {
   placeholder?: string;
   description?: string;
   category?: string;
-  visible?: (element: BaseElementData) => boolean;
-  validate?: (value: any, element: BaseElementData) => string | null;
+  visible?: (element: TemplateElement) => boolean;
+  validate?: (value: any, element: TemplateElement) => string | null;
   transform?: (value: any) => any;
 }
 
@@ -66,14 +66,14 @@ export interface PropertyChangeEvent {
   key: string;
   value: any;
   oldValue: any;
-  element: BaseElementData;
+  element: TemplateElement;
 }
 
 /**
  * 属性编辑器组件属性
  */
 export interface PropertyEditorProps {
-  element: BaseElementData;
+  element: TemplateElement;
   property: PropertyDefinition;
   value: any;
   onChange: (value: any) => void;
@@ -85,7 +85,7 @@ export interface PropertyEditorProps {
  * 属性面板组件属性
  */
 export interface PropertyPanelProps {
-  element: BaseElementData | null;
+  element: TemplateElement | null;
   onPropertyChange: (key: string, value: any) => void;
   disabled?: boolean;
 }

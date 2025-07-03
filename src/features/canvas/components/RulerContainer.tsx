@@ -5,7 +5,7 @@ import { useAlignment } from '../hooks/useAlignment';
 
 interface RulerContainerProps {
   children: React.ReactNode;
-  unit?: 'px' | 'mm' | 'cm' | 'in';
+  unit?: 'px' | 'mm' | 'cm';
   thickness?: number;
   backgroundColor?: string;
   textColor?: string;
@@ -28,7 +28,7 @@ export const RulerContainer: React.FC<RulerContainerProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerSize, setContainerSize] = useState({ width: 800, height: 600 });
-  const [mousePosition, setMousePosition] = useState<{ x: number; y: number } | null>(null);
+  const [mousePosition, setMousePosition] = useState<{ x: number; y: number } | undefined>(undefined);
   
   const { canvas, template } = useEditorStore();
   const alignment = useAlignment();
@@ -69,7 +69,7 @@ export const RulerContainer: React.FC<RulerContainerProps> = ({
 
   // 处理鼠标离开
   const handleMouseLeave = useCallback(() => {
-    setMousePosition(null);
+    setMousePosition(undefined);
   }, []);
 
   // 处理标尺点击
@@ -83,6 +83,7 @@ export const RulerContainer: React.FC<RulerContainerProps> = ({
     alignment.addManualGuide({
       orientation: guideOrientation,
       position: position,
+      type: 'manual',
       visible: true,
     });
   }, [alignment]);

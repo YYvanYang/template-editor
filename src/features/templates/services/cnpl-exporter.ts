@@ -4,12 +4,26 @@
  */
 
 import { Template } from '../types/template.types';
-import { ElementType, BaseElement } from '@/features/elements/types';
-import { TextElement } from '@/features/elements/types/text.types';
-import { ImageElement } from '@/features/elements/types/image.types';
-import { ShapeElement } from '@/features/elements/types/shape.types';
-import { TableElement } from '@/features/elements/table/TableElement';
-import { BarcodeElement } from '@/features/elements/barcode/BarcodeElement';
+import { 
+  TemplateElement, 
+  TextElement, 
+  ImageElement, 
+  ShapeElement, 
+  TableElement, 
+  BarcodeElement,
+  QRCodeElement,
+  isTextElement,
+  isImageElement,
+  isShapeElement,
+  isTableElement,
+  isBarcodeElement,
+  isQRCodeElement,
+  TableRow,
+  TableCell,
+  TableColumn,
+  TextStyle,
+  ShapeStyle
+} from '@/types/unified.types';
 
 export class CNPLExporter {
   /**
@@ -32,7 +46,7 @@ ${this.exportElements(content.elements, 4)}
   /**
    * 导出元素列表
    */
-  private static exportElements(elements: BaseElement[], indent: number): string {
+  private static exportElements(elements: TemplateElement[], indent: number): string {
     return elements
       .map(element => this.exportElement(element, indent))
       .join('\n');
@@ -41,41 +55,47 @@ ${this.exportElements(content.elements, 4)}
   /**
    * 导出单个元素
    */
-  private static exportElement(element: BaseElement, indent: number): string {
+  private static exportElement(element: TemplateElement, indent: number): string {
     const indentStr = ' '.repeat(indent);
     
-    switch (element.type) {
-      case ElementType.TEXT:
-        return this.exportTextElement(element as TextElement, indentStr);
-      
-      case ElementType.IMAGE:
-        return this.exportImageElement(element as ImageElement, indentStr);
-      
-      case ElementType.SHAPE:
-        return this.exportShapeElement(element as ShapeElement, indentStr);
-      
-      case ElementType.TABLE:
-        return this.exportTableElement(element as TableElement, indentStr);
-      
-      case ElementType.BARCODE:
-        return this.exportBarcodeElement(element as BarcodeElement, indentStr);
-      
-      default:
-        console.warn(`Unsupported element type: ${element.type}`);
-        return '';
+    if (isTextElement(element)) {
+      return this.exportTextElement(element, indentStr);
     }
+    
+    if (isImageElement(element)) {
+      return this.exportImageElement(element, indentStr);
+    }
+    
+    if (isShapeElement(element)) {
+      return this.exportShapeElement(element, indentStr);
+    }
+    
+    if (isTableElement(element)) {
+      return this.exportTableElement(element, indentStr);
+    }
+    
+    if (isBarcodeElement(element)) {
+      return this.exportBarcodeElement(element, indentStr);
+    }
+    
+    if (isQRCodeElement(element)) {
+      return this.exportQRCodeElement(element, indentStr);
+    }
+    
+    console.warn(`Unsupported element type: ${element.type}`);
+    return '';
   }
   
   /**
    * 导出文本元素
    */
   private static exportTextElement(element: TextElement, indent: string): string {
-    const style = element.style || {};
+    const style = element.style as TextStyle || {};
     const attrs = [
-      `left="${element.x}"`,
-      `top="${element.y}"`,
-      `width="${element.width}"`,
-      `height="${element.height}"`,
+      `left="${element.position.x}"`,
+      `top="${element.position.y}"`,
+      `width="${element.size.width}"`,
+      `height="${element.size.height}"`,
     ];
     
     if (element.rotation) {
@@ -116,10 +136,10 @@ ${this.exportElements(content.elements, 4)}
    */
   private static exportImageElement(element: ImageElement, indent: string): string {
     const attrs = [
-      `left="${element.x}"`,
-      `top="${element.y}"`,
-      `width="${element.width}"`,
-      `height="${element.height}"`,
+      `left="${element.position.x}"`,
+      `top="${element.position.y}"`,
+      `width="${element.size.width}"`,
+      `height="${element.size.height}"`,
       `src="${element.src || ''}"`,
     ];
     
@@ -135,17 +155,17 @@ ${this.exportElements(content.elements, 4)}
    */
   private static exportShapeElement(element: ShapeElement, indent: string): string {
     const attrs = [
-      `left="${element.x}"`,
-      `top="${element.y}"`,
-      `width="${element.width}"`,
-      `height="${element.height}"`,
+      `left="${element.position.x}"`,
+      `top="${element.position.y}"`,
+      `width="${element.size.width}"`,
+      `height="${element.size.height}"`,
     ];
     
     if (element.rotation) {
       attrs.push(`rotate="${element.rotation}"`);
     }
     
-    const style = element.style || {};
+    const style = element.style as ShapeStyle || {};
     if (style.strokeWidth) {
       attrs.push(`line.width="${style.strokeWidth}"`);
     }
@@ -155,7 +175,7 @@ ${this.exportElements(content.elements, 4)}
     }
     
     // CNPL 使用 rect 和 line 标签
-    if (element.shapeType === 'line') {
+    if (element.shape === 'line') {
       return `${indent}<line ${attrs.join(' ')} />`;
     } else {
       if (style.fill && style.fill !== 'transparent') {
@@ -170,22 +190,34 @@ ${this.exportElements(content.elements, 4)}
    */
   private static exportTableElement(element: TableElement, indent: string): string {
     const attrs = [
-      `left="${element.x}"`,
-      `top="${element.y}"`,
-      `width="${element.width}"`,
-      `height="${element.height}"`,
+      `left="${element.position.x}"`,
+      `top="${element.position.y}"`,
+      `width="${element.size.width}"`,
+      `height="${element.size.height}"`,
     ];
     
     const rows = element.rows || [];
-    const rowsContent = rows.map((row, rowIndex) => {
-      const cells = row.cells.map((cell, cellIndex) => {
+    const columns = element.columns || [];
+    
+    const rowsContent = rows.map((row: TableRow, rowIndex: number) => {
+      const cells = columns.map((col: TableColumn) => {
+        const cellData = row.cells[col.key];
+        let cellContent = '';
+        
+        // 处理不同类型的单元格数据
+        if (typeof cellData === 'string' || typeof cellData === 'number') {
+          cellContent = String(cellData);
+        } else if (cellData && typeof cellData === 'object') {
+          const cell = cellData as TableCell;
+          cellContent = String(cell.value || '');
+        }
+        
         const cellAttrs = [];
-        if (cell.colspan > 1) cellAttrs.push(`colspan="${cell.colspan}"`);
-        if (cell.rowspan > 1) cellAttrs.push(`rowspan="${cell.rowspan}"`);
-        if (cell.style?.textAlign) cellAttrs.push(`text.align="${cell.style.textAlign}"`);
+        
+        if (col.align) cellAttrs.push(`text.align="${col.align}"`);
         
         const cellType = rowIndex === 0 ? 'th' : 'td';
-        const content = this.escapeXML(cell.content || '');
+        const content = this.escapeXML(cellContent);
         
         return `      <${cellType}${cellAttrs.length ? ' ' + cellAttrs.join(' ') : ''}>${content}</${cellType}>`;
       }).join('\n');
@@ -201,11 +233,11 @@ ${this.exportElements(content.elements, 4)}
    */
   private static exportBarcodeElement(element: BarcodeElement, indent: string): string {
     const attrs = [
-      `left="${element.x}"`,
-      `top="${element.y}"`,
-      `width="${element.width}"`,
-      `height="${element.height}"`,
-      `type="${element.barcodeType}"`,
+      `left="${element.position.x}"`,
+      `top="${element.position.y}"`,
+      `width="${element.size.width}"`,
+      `height="${element.size.height}"`,
+      `type="${element.format || 'CODE128'}"`,
     ];
     
     if (element.rotation) {
@@ -214,6 +246,31 @@ ${this.exportElements(content.elements, 4)}
     
     if (element.showText !== undefined) {
       attrs.push(`text.visible="${element.showText}"`);
+    }
+    
+    const content = this.escapeXML(element.value || '');
+    
+    return `${indent}<barcode ${attrs.join(' ')}>${content}</barcode>`;
+  }
+  
+  /**
+   * 导出二维码元素
+   */
+  private static exportQRCodeElement(element: QRCodeElement, indent: string): string {
+    const attrs = [
+      `left="${element.position.x}"`,
+      `top="${element.position.y}"`,
+      `width="${element.size.width}"`,
+      `height="${element.size.height}"`,
+      `type="QRCode"`,
+    ];
+    
+    if (element.rotation) {
+      attrs.push(`rotate="${element.rotation}"`);
+    }
+    
+    if (element.errorCorrection) {
+      attrs.push(`error.level="${element.errorCorrection}"`);
     }
     
     const content = this.escapeXML(element.value || '');
