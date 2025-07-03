@@ -16,7 +16,7 @@ import {
   searchProperties,
 } from '../utils/property.utils';
 import type { PropertyPanelProps, PropertyDefinition } from '../types/property.types';
-import type { BaseElementData } from '@/features/elements/types/base.types';
+import type { TemplateElement } from '@/types/unified.types';
 
 /**
  * 专业级属性面板组件
@@ -73,33 +73,22 @@ export const PropertyPanelPro: React.FC<PropertyPanelProps> = ({
   };
 
   return (
-    <div className="flex h-full">
-      {/* 收起状态的侧边栏 */}
-      <div className={cn(
-        "bg-background border-l border-border transition-all duration-200",
-        isOpen ? "w-0 overflow-hidden" : "w-12"
-      )}>
-        {!isOpen && (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={togglePanel}
-            className="rounded-none h-full w-full"
-            title="展开属性面板"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        )}
-      </div>
-
-      {/* 主面板 */}
+    <div 
+      className="absolute right-0 top-0 h-full transition-all duration-300 ease-in-out"
+      style={{ 
+        width: Math.max(48, isOpen ? width : 48)
+      }}
+    >
+      {/* 主面板 - 使用transform实现GPU加速动画 */}
       <div
         className={cn(
-          'flex flex-col bg-background border-l border-border h-full',
-          'transition-all duration-200 shadow-xl',
-          !isOpen && 'w-0 overflow-hidden'
+          'flex flex-col bg-background border-l border-border h-full shadow-xl',
+          'transition-transform duration-300 ease-in-out'
         )}
-        style={{ width: isOpen ? width : 0 }}
+        style={{ 
+          width: width - 48, // 减去按钮宽度
+          transform: isOpen ? 'translateX(0)' : `translateX(${width - 48}px)`
+        }}
       >
       {/* 面板头部 - 参考 Figma 的设计 */}
       <div className="flex items-center justify-between h-12 px-4 border-b border-border bg-muted/30">
@@ -208,6 +197,23 @@ export const PropertyPanelPro: React.FC<PropertyPanelProps> = ({
         </div>
       </ScrollArea>
       </div>
+
+      {/* 切换按钮 - 始终可见，位于面板右侧 */}
+      <div className="absolute right-0 top-0 w-12 h-full flex items-center justify-center border-l border-border bg-background">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={togglePanel}
+          className="h-full w-full rounded-none hover:bg-muted/50"
+          title={isOpen ? "收起属性面板" : "展开属性面板"}
+        >
+          {isOpen ? (
+            <ChevronRight className="h-4 w-4" />
+          ) : (
+            <ChevronRight className="h-4 w-4 rotate-180" />
+          )}
+        </Button>
+      </div>
     </div>
   );
 };
@@ -216,7 +222,7 @@ export const PropertyPanelPro: React.FC<PropertyPanelProps> = ({
  * 属性项组件 - 优化的布局
  */
 interface PropertyItemProps {
-  element: BaseElementData;
+  element: TemplateElement;
   property: PropertyDefinition;
   value: any;
   onChange: (value: any) => void;

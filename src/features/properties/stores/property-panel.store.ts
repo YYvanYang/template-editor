@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
-import type { PropertyCategory } from '../types/property.types';
 
 interface PropertyPanelState {
   // 面板是否展开
@@ -137,13 +136,17 @@ if (typeof window !== 'undefined') {
     try {
       const parsed = JSON.parse(savedState);
       usePropertyPanelStore.setState({
-        isOpen: parsed.isOpen ?? true,
-        width: parsed.width ?? 320,
-        expandedCategories: new Set(parsed.expandedCategories ?? ['basic', 'style']),
-        showAdvanced: parsed.showAdvanced ?? false,
+        // 首次访问时强制展开，后续尊重用户设置
+        isOpen: parsed.isOpen !== undefined ? parsed.isOpen : initialState.isOpen,
+        width: parsed.width ?? initialState.width,
+        expandedCategories: new Set(parsed.expandedCategories ?? Array.from(initialState.expandedCategories)),
+        showAdvanced: parsed.showAdvanced ?? initialState.showAdvanced,
       });
     } catch (e) {
       console.error('Failed to load property panel state:', e);
     }
   }
+  
+  // 临时：清除localStorage以确保默认展开（已执行，现在注释掉）
+  // localStorage.removeItem('property-panel-state');
 }

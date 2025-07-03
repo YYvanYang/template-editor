@@ -1,4 +1,4 @@
-import type { BaseElementData } from '@/features/elements/types/base.types';
+import type { TemplateElement } from '@/types/unified.types';
 import { PropertyDefinition, PropertyCategory, PROPERTY_CATEGORIES } from '../types/property.types';
 import { COMMON_PROPERTIES } from '../types/property.types';
 import { getPropertiesForElement } from '../types/element-properties';
@@ -6,7 +6,7 @@ import { getPropertiesForElement } from '../types/element-properties';
 /**
  * 获取元素的所有属性定义
  */
-export function getElementProperties(element: BaseElementData): PropertyDefinition[] {
+export function getElementProperties(element: TemplateElement): PropertyDefinition[] {
   const elementProperties = getPropertiesForElement(element.type);
   return [...COMMON_PROPERTIES, ...elementProperties];
 }
@@ -33,7 +33,7 @@ export function groupPropertiesByCategory(
 /**
  * 获取属性的值（支持嵌套属性）
  */
-export function getPropertyValue(element: BaseElementData, key: string): any {
+export function getPropertyValue(element: TemplateElement, key: string): any {
   const keys = key.split('.');
   let value: any = element;
   
@@ -52,10 +52,10 @@ export function getPropertyValue(element: BaseElementData, key: string): any {
  * 设置属性的值（支持嵌套属性）
  */
 export function setPropertyValue(
-  element: BaseElementData,
+  element: TemplateElement,
   key: string,
   value: any
-): BaseElementData {
+): TemplateElement {
   const keys = key.split('.');
   const result = { ...element };
   let current: any = result;
@@ -80,7 +80,7 @@ export function setPropertyValue(
 export function validatePropertyValue(
   property: PropertyDefinition,
   value: any,
-  element: BaseElementData
+  element: TemplateElement
 ): string | null {
   // 自定义验证
   if (property.validate) {
@@ -134,7 +134,7 @@ export function isValidBinding(value: string): boolean {
  */
 export function filterVisibleProperties(
   properties: PropertyDefinition[],
-  element: BaseElementData,
+  element: TemplateElement,
   showAdvanced: boolean
 ): PropertyDefinition[] {
   return properties.filter((property) => {
