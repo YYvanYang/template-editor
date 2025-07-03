@@ -75,19 +75,18 @@ export const PropertyPanelFixed: React.FC<PropertyPanelProps> = ({
   return (
     <aside 
       className={cn(
-        "relative bg-background border-l border-border h-full flex",
-        "transition-all duration-300 ease-in-out"
+        "absolute right-0 top-0 bg-background border-l border-border h-full flex z-10",
+        "transition-transform duration-300 ease-in-out"
       )}
-      style={{ width: isOpen ? width : 48 }}
+      style={{ 
+        width: width,
+        transform: isOpen ? 'translateX(0)' : `translateX(${width - 48}px)`
+      }}
     >
-      {/* 主面板内容 */}
-      <div
-        className={cn(
-          'flex-1 flex flex-col overflow-hidden',
-          !isOpen && 'opacity-0 pointer-events-none'
-        )}
-      >
-        {/* 面板头部 */}
+      {/* 主面板内容 - 改用transform和opacity实现动画 */}
+              {isOpen && (
+          <div className="flex flex-col overflow-hidden flex-1">
+            {/* 面板头部 */}
         <div className="flex items-center justify-between h-12 px-4 border-b border-border bg-muted/30">
           <h3 className="font-medium text-sm text-foreground select-none">属性</h3>
           <div className="flex items-center gap-1">
@@ -184,13 +183,11 @@ export const PropertyPanelFixed: React.FC<PropertyPanelProps> = ({
             )}
           </div>
         </ScrollArea>
-      </div>
+          </div>
+        )}
 
       {/* 切换按钮 - 始终可见 */}
-      <div className={cn(
-        "absolute right-0 top-0 h-full w-12 flex items-center justify-center",
-        "border-l border-border bg-background"
-      )}>
+      <div className="w-12 flex items-center justify-center border-l border-border bg-background">
         <Button
           variant="ghost"
           size="icon"

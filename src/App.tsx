@@ -3,6 +3,7 @@ import { FlexibleLayout } from '@/shared/components/Layout'
 import { CanvasWithRulers } from '@/features/canvas/components/CanvasWithRulers'
 import { PropertyPanelFixed } from '@/features/properties/components/PropertyPanelFixed'
 import { useEditorStore } from '@/features/editor/stores/editor.store'
+
 import { RulerDebug } from '@/debug/RulerDebug'
 import { CanvasRulerDebug } from '@/debug/CanvasRulerDebug'
 import { RulerTest } from '@/debug/RulerTest'
@@ -21,6 +22,8 @@ function App() {
   // 获取选中的元素和更新函数
   const selectedElement = useEditorStore(state => state.getSelectedElement())
   const updateElement = useEditorStore(state => state.updateElement)
+  
+
   
   // 优化 PropertyPanel 的回调，避免不必要的重渲染
   const handlePropertyChange = useCallback((key: string, value: any) => {
@@ -131,12 +134,12 @@ function App() {
       <meta name="description" content="现代化的打印模板设计工具" />
       
       <FlexibleLayout>
-        {/* 中间画布区域 */}
-        <div className="flex-1 h-full">
+        {/* 画布区域 - 固定布局，让属性面板覆盖 */}
+        <div className="w-full h-full">
           <CanvasWithRulers showRulers={true} unit="mm" showDiagnostics={false} />
         </div>
         
-        {/* 右侧属性面板 */}
+        {/* 右侧属性面板 - 绝对定位 */}
         <PropertyPanelFixed 
           element={selectedElement}
           onPropertyChange={handlePropertyChange}

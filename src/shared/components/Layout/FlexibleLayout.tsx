@@ -1,6 +1,7 @@
 import React from 'react'
 import { Toolbar, VerticalToolbar } from '@/features/toolbar'
 import { useEditorStore } from '@/features/editor/stores/editor.store'
+
 import { Settings } from 'lucide-react'
 import { cn } from '@/shared/utils'
 
@@ -43,7 +44,7 @@ export const FlexibleLayout: React.FC<FlexibleLayoutProps> = ({ children }) => {
       {/* 顶部工具栏 */}
       {toolbarPosition === 'top' && <Toolbar />}
       
-      <main role="main" className="flex-1 flex overflow-hidden relative">
+      <main role="main" className="flex-1 overflow-hidden relative">
         {/* 主内容区域 */}
         {children}
         
