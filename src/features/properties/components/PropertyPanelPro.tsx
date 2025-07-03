@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { ChevronDown, ChevronRight, Search, Settings2 } from 'lucide-react';
+import { ChevronDown, ChevronRight, Search, Settings2, X } from 'lucide-react';
 import { cn } from '@/shared/utils';
 import { usePropertyPanelStore } from '../stores/property-panel.store';
 import { PropertyEditor } from './PropertyEditor';
@@ -19,9 +19,10 @@ import type { PropertyPanelProps, PropertyDefinition } from '../types/property.t
 import type { BaseElementData } from '@/features/elements/types/base.types';
 
 /**
- * 属性面板组件
+ * 专业级属性面板组件
+ * 参考 Figma、Adobe XD、Sketch 的设计实现
  */
-export const PropertyPanel: React.FC<PropertyPanelProps> = ({
+export const PropertyPanelPro: React.FC<PropertyPanelProps> = ({
   element,
   onPropertyChange,
   disabled = false,
@@ -35,6 +36,7 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = ({
     setSearchKeyword,
     toggleCategory,
     toggleShowAdvanced,
+    togglePanel,
   } = usePropertyPanelStore();
 
   // 获取元素的所有属性定义
@@ -71,54 +73,81 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = ({
   };
 
   if (!isOpen) {
-    return null;
+    return (
+      <div className="w-12 bg-background border-l border-border flex items-center justify-center">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={togglePanel}
+          className="rounded-none h-full"
+          title="展开属性面板"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+      </div>
+    );
   }
 
   return (
     <div
       className={cn(
         'flex flex-col bg-background border-l border-border h-full',
-        'transition-all duration-200'
+        'transition-all duration-200 shadow-xl'
       )}
       style={{ width }}
     >
-      {/* 面板头部 */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-        <h3 className="font-medium text-sm text-foreground">属性面板</h3>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleShowAdvanced}
-          title={showAdvanced ? '隐藏高级属性' : '显示高级属性'}
-        >
-          <Settings2 className={cn('h-4 w-4', showAdvanced && 'text-blue-600')} />
-        </Button>
+      {/* 面板头部 - 参考 Figma 的设计 */}
+      <div className="flex items-center justify-between h-12 px-4 border-b border-border bg-muted/30">
+        <h3 className="font-medium text-sm text-foreground select-none">属性</h3>
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            onClick={toggleShowAdvanced}
+            title={showAdvanced ? '隐藏高级选项' : '显示高级选项'}
+          >
+            <Settings2 className={cn('h-4 w-4', showAdvanced && 'text-primary')} />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            onClick={togglePanel}
+            title="收起面板"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
-      {/* 搜索框 */}
-      <div className="px-4 py-2 border-b border-border">
+      {/* 搜索框 - 参考 Adobe XD 的设计 */}
+      <div className="px-4 py-3 border-b border-border bg-muted/10">
         <div className="relative">
-          <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             type="text"
             placeholder="搜索属性..."
             value={searchKeyword}
             onChange={(e) => setSearchKeyword(e.target.value)}
-            className="pl-8 h-8"
+            className="pl-9 h-8 bg-background/60 border-input/50 focus:border-primary/50"
           />
         </div>
       </div>
 
-      {/* 属性列表 */}
+      {/* 属性列表 - 参考 Sketch 的分组设计 */}
       <ScrollArea className="flex-1">
-        <div className="px-4 py-4 pr-6 space-y-4">
+        <div className="px-4 py-3 space-y-1">
           {!element ? (
-            <div className="text-center text-muted-foreground text-sm py-8">
-              请选择一个元素以查看其属性
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <div className="text-muted-foreground text-sm">未选中任何元素</div>
+              <div className="text-muted-foreground/60 text-xs mt-1">选择一个元素以查看其属性</div>
             </div>
           ) : sortedCategories.length === 0 ? (
-            <div className="text-center text-muted-foreground text-sm py-8">
-              {searchKeyword ? '没有找到匹配的属性' : '没有可配置的属性'}
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <div className="text-muted-foreground text-sm">
+                {searchKeyword ? '未找到匹配的属性' : '无可用属性'}
+              </div>
             </div>
           ) : (
             sortedCategories.map((categoryName) => {
@@ -127,29 +156,34 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = ({
               const isExpanded = expandedCategories.has(categoryName);
 
               return (
-                <div key={categoryName} className="space-y-2">
-                  {/* 分类标题 */}
+                <div key={categoryName} className="select-none">
+                  {/* 分类标题 - 更紧凑的设计 */}
                   <button
                     type="button"
                     onClick={() => toggleCategory(categoryName)}
-                    className="w-full flex items-center justify-between py-1 text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
+                    className={cn(
+                      "w-full flex items-center justify-between py-2 px-2 -mx-2 rounded",
+                      "text-sm font-medium transition-colors",
+                      "hover:bg-muted/50",
+                      isExpanded && "bg-muted/30"
+                    )}
                   >
-                    <span className="flex items-center gap-1">
+                    <span className="flex items-center gap-1.5">
                       {isExpanded ? (
-                        <ChevronDown className="h-4 w-4" />
+                        <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
                       ) : (
-                        <ChevronRight className="h-4 w-4" />
+                        <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
                       )}
-                      {category.label}
+                      <span className="text-foreground/80">{category.label}</span>
                     </span>
                     <span className="text-xs text-muted-foreground">
                       {properties.length}
                     </span>
                   </button>
 
-                  {/* 属性列表 */}
+                  {/* 属性列表 - 更紧凑的间距 */}
                   {isExpanded && (
-                    <div className="space-y-3 pl-5">
+                    <div className="space-y-3 pl-5 pr-1 py-2">
                       {properties.map((property) => (
                         <PropertyItem
                           key={property.key}
@@ -173,7 +207,7 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = ({
 };
 
 /**
- * 属性项组件
+ * 属性项组件 - 优化的布局
  */
 interface PropertyItemProps {
   element: BaseElementData;
@@ -204,8 +238,8 @@ const PropertyItem: React.FC<PropertyItemProps> = ({
   }
 
   return (
-    <div className="space-y-1">
-      <label className="text-xs font-medium text-foreground/70">
+    <div className="space-y-1.5">
+      <label className="text-xs font-medium text-foreground/70 select-none">
         {property.label}
       </label>
       <PropertyEditor

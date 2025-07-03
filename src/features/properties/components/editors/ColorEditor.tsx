@@ -50,7 +50,7 @@ export const ColorEditor: React.FC<PropertyEditorProps> = ({
         <PopoverTrigger asChild>
           <div className="flex items-center gap-2">
             <div
-              className="h-9 w-9 rounded border border-gray-300 cursor-pointer"
+              className="h-9 w-9 rounded border border-input cursor-pointer"
               style={{ backgroundColor: localValue }}
               onClick={() => !disabled && setIsOpen(true)}
             />
@@ -61,7 +61,7 @@ export const ColorEditor: React.FC<PropertyEditorProps> = ({
               onBlur={onBlur}
               placeholder={property.placeholder || '#000000'}
               disabled={disabled}
-              className={`flex-1 ${error ? 'border-red-500' : ''}`}
+              className={`flex-1 ${error ? 'border-destructive' : ''}`}
             />
           </div>
         </PopoverTrigger>
@@ -78,7 +78,7 @@ export const ColorEditor: React.FC<PropertyEditorProps> = ({
               {PRESET_COLORS.map((color) => (
                 <button
                   key={color}
-                  className="w-6 h-6 rounded border border-gray-300 hover:scale-110 transition-transform"
+                  className="w-6 h-6 rounded border border-input hover:scale-110 transition-transform"
                   style={{ backgroundColor: color }}
                   onClick={() => handleChange(color)}
                 />
@@ -88,7 +88,7 @@ export const ColorEditor: React.FC<PropertyEditorProps> = ({
         </PopoverContent>
       </Popover>
       {error && (
-        <p className="mt-1 text-xs text-red-500">{error}</p>
+        <p className="mt-1 text-xs text-destructive">{error}</p>
       )}
     </div>
   );

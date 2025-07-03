@@ -17,7 +17,7 @@ export function ScrollArea({ className, children, ref, ...props }: ScrollAreaPro
       <ScrollAreaPrimitive.Viewport className="h-full w-full rounded-[inherit]">
         {children}
       </ScrollAreaPrimitive.Viewport>
-      <ScrollBar />
+      <ScrollBar orientation="vertical" />
       <ScrollAreaPrimitive.Corner />
     </ScrollAreaPrimitive.Root>
   );
@@ -43,7 +43,7 @@ export function ScrollBar({ className, orientation = 'vertical', ref, ...props }
       )}
       {...props}
     >
-      <ScrollAreaPrimitive.ScrollAreaThumb className="relative flex-1 rounded-full bg-gray-300 hover:bg-gray-400 transition-colors" />
+      <ScrollAreaPrimitive.ScrollAreaThumb className="relative flex-1 rounded-full bg-border hover:bg-muted-foreground/50 transition-colors" />
     </ScrollAreaPrimitive.ScrollAreaScrollbar>
   );
 }
